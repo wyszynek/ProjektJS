@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ setIsLoggedIn }) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -16,8 +16,11 @@ function Login() {
         password
       });
       setMessage(response.data.message);
+      localStorage.setItem('token', response.data.token); // Zapisujemy token w localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/dashboard');
+      
+      setIsLoggedIn(true); // Ustawiamy stan logowania na true w rodzicu
+      navigate('/dashboard'); // Przekierowujemy do dashboardu po zalogowaniu
     } catch (error) {
       setMessage(error.response.data.message || 'An error occurred');
     }

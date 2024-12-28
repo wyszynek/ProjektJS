@@ -5,6 +5,7 @@ import { User, Movie, Comment, Rating } from './models.js';
 import sequelize from './db.js';  
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken'; 
 
 dotenv.config();
 
@@ -42,9 +43,6 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(500).json({ message: 'An error occurred during registration' });
   }
 });
-
-// Endpoint do logowania użytkownika
-import jwt from 'jsonwebtoken'; 
 
 // Endpoint do logowania użytkownika
 app.post('/api/auth/login', async (req, res) => {
@@ -90,6 +88,47 @@ app.post('/api/auth/login', async (req, res) => {
 
 
 
+// Middleware do weryfikacji tokena
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1]; // Token w nagłówku Authorization (Bearer token)
+
+  if (!token) {
+    return res.status(403).json({ message: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Failed to authenticate token' });
+    }
+    req.userId = decoded.id; // Zapisujemy ID użytkownika w req.userId
+    next();
+  });
+};
+
+app.post('/api/movies', verifyToken, async (req, res) => {
+  const { title, description, genre, releaseDate } = req.body;
+
+  // Sprawdzamy, czy wszystkie dane zostały przesłane
+  if (!title || !description || !genre || !releaseDate) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    // Tworzymy nowy film i przypisujemy go do użytkownika
+    const movie = await Movie.create({
+      title,
+      description,
+      genre,
+      releaseDate,
+      userId: req.userId, // Przypisujemy ID użytkownika (pobierane z tokena)
+    });
+
+    res.status(201).json({ message: 'Movie added successfully', movie });
+  } catch (error) {
+    console.error('Error adding movie:', error);
+    res.status(500).json({ message: 'An error occurred while adding the movie' });
+  }
+});
 
 
 // Uruchomienie serwera i synchronizacja bazy
