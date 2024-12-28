@@ -1,6 +1,7 @@
 // Register.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ function Register() {
   const [lastName, setLastName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -23,6 +25,7 @@ function Register() {
         birthDate,
       });
       setMessage(response.data.message);
+      navigate('/login'); 
     } catch (error) {
       setMessage(error.response?.data?.message || 'Błąd podczas rejestracji');
     }

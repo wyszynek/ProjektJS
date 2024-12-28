@@ -19,7 +19,7 @@ app.use(
   })
 );
 
-// Endpoint do rejestracji użytkownika
+//rejestracja użytkownika
 app.post('/api/auth/register', async (req, res) => {
   const { email, userName, password, firstName, lastName, birthDate } = req.body;
   try {
@@ -44,24 +44,21 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Endpoint do logowania użytkownika
+//logowanie użytkownika
 app.post('/api/auth/login', async (req, res) => {
   const { identifier, password } = req.body; // identifier to może być email lub userName
 
-  // Sprawdzamy, czy dane są przekazane
   if (!identifier || !password) {
     return res.status(400).json({ message: 'Email/username and password are required' });
   }
 
   try {
-    // Szukamy użytkownika po emailu lub nazwie użytkownika
     const user = await User.findOne({ where: { [Op.or]: [{ email: identifier }, { userName: identifier }] } });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or username' });
     }
 
-    // Sprawdzamy, czy hasło jest poprawne
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: 'Invalid password' });
@@ -70,11 +67,10 @@ app.post('/api/auth/login', async (req, res) => {
     // Generowanie tokena JWT
     const token = jwt.sign(
       { id: user.id, userName: user.userName, email: user.email }, // Dane, które chcemy zawrzeć w tokenie
-      process.env.JWT_SECRET, // Klucz sekretu (upewnij się, że jest ustawiony w pliku .env)
-      { expiresIn: '1h' } // Ważność tokena (1 godzina)
+      process.env.JWT_SECRET, // Klucz sekretu
+      { expiresIn: '1h' }
     );
 
-    // Logowanie udane, zwracamy token
     res.status(200).json({
       message: 'Login successful',
       user: { userName: user.userName, email: user.email },
@@ -90,7 +86,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Middleware do weryfikacji tokena
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1]; // Token w nagłówku Authorization (Bearer token)
+  const token = req.headers['authorization']?.split(' ')[1];
 
   if (!token) {
     return res.status(403).json({ message: 'No token provided' });
@@ -100,27 +96,26 @@ const verifyToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: 'Failed to authenticate token' });
     }
-    req.userId = decoded.id; // Zapisujemy ID użytkownika w req.userId
+    req.userId = decoded.id;
     next();
   });
 };
 
 app.post('/api/movies', verifyToken, async (req, res) => {
-  const { title, description, genre, releaseDate } = req.body;
+  const { title, director, description, genre, releaseDate } = req.body;
 
-  // Sprawdzamy, czy wszystkie dane zostały przesłane
-  if (!title || !description || !genre || !releaseDate) {
+  if (!title || !description || !genre || !releaseDate || !director) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    // Tworzymy nowy film i przypisujemy go do użytkownika
     const movie = await Movie.create({
       title,
+      director,
       description,
       genre,
       releaseDate,
-      userId: req.userId, // Przypisujemy ID użytkownika (pobierane z tokena)
+      userId: req.userId, 
     });
 
     res.status(201).json({ message: 'Movie added successfully', movie });
@@ -129,6 +124,17 @@ app.post('/api/movies', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'An error occurred while adding the movie' });
   }
 });
+
+app.get("/api/movies", async (req, res) => {
+  try {
+    const movies = await Movie.findAll({ include: User });
+    res.json(movies);
+  } catch (err) {
+    console.error("Error fetching plans:", err);
+    res.status(500).send("Could not fetch plans");
+  }
+});
+
 
 
 // Uruchomienie serwera i synchronizacja bazy

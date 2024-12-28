@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
+import AddMovie from './AddMovie';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Stan logowania
@@ -18,7 +19,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setIsLoggedIn(false); // Zmieniamy stan logowania na false
+    setIsLoggedIn(false); 
   };
 
   if (loading) {
@@ -34,6 +35,7 @@ function App() {
             {isLoggedIn ? (
               <>
                 <Link to="/dashboard">Dashboard</Link> | 
+                <Link to="/addmovie">Add Movie</Link> | 
                 <button onClick={handleLogout}>Logout</button>
               </>
             ) : (
@@ -51,6 +53,7 @@ function App() {
           
           {/* Przekierowanie na dashboard, jeśli użytkownik jest zalogowany */}
           <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
+          <Route path="/addmovie" element={isLoggedIn ? <AddMovie /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>

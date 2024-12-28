@@ -1,99 +1,77 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AddMovie = () => {
+function AddMovie() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [director, setDirector] = useState('');  // Nowe pole dla reżysera
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token'); // Zakładając, że token jest zapisany w localStorage
-
+    const token = localStorage.getItem('token');
+    
     if (!token) {
-      setError('You need to be logged in to add a movie');
+      setMessage('You must be logged in to add a movie.');
       return;
     }
 
-    const movieData = {
-      title,
-      description,
-      genre,
-      releaseDate,
-    };
-
     try {
       const response = await axios.post(
-        'http://localhost:3001/api/movies',
-        movieData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        'http://localhost:3001/api/movies', // Endpoint API do dodawania filmu
+        { title, director, description, genre, releaseDate },  // Dodajemy director
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSuccess('Movie added successfully!');
-      setError('');
-      // Możesz tu wyczyścić formularz po udanym dodaniu filmu
-      setTitle('');
-      setDescription('');
-      setGenre('');
-      setReleaseDate('');
-    } catch (err) {
-      setError('Error adding movie');
-      setSuccess('');
+      setMessage(response.data.message || 'Movie added successfully');
+    } catch (error) {
+      setMessage(error.response.data.message || 'An error occurred');
     }
   };
 
   return (
     <div>
-      <h2>Add Movie</h2>
+      <h2>Add New Movie</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title:</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Description:</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Genre:</label>
-          <input
-            type="text"
-            value={genre}
-            onChange={(e) => setGenre(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Release Date:</label>
-          <input
-            type="date"
-            value={releaseDate}
-            onChange={(e) => setReleaseDate(e.target.value)}
-            required
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Genre"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          required
+        />
+        <input
+          type="date"
+          value={releaseDate}
+          onChange={(e) => setReleaseDate(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Director"  // Pole dla reżysera
+          value={director}
+          onChange={(e) => setDirector(e.target.value)}
+          required
+        />
         <button type="submit">Add Movie</button>
       </form>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
+      <p>{message}</p>
     </div>
   );
-};
+}
 
 export default AddMovie;

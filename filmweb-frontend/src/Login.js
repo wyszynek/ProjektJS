@@ -19,8 +19,8 @@ function Login({ setIsLoggedIn }) {
       localStorage.setItem('token', response.data.token); // Zapisujemy token w localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
-      setIsLoggedIn(true); // Ustawiamy stan logowania na true w rodzicu
-      navigate('/dashboard'); // Przekierowujemy do dashboardu po zalogowaniu
+      setIsLoggedIn(true); 
+      navigate('/dashboard'); 
     } catch (error) {
       setMessage(error.response.data.message || 'An error occurred');
     }
