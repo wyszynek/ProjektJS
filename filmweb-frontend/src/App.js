@@ -4,7 +4,7 @@ import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import AddMovie from './AddMovie';
-
+import HomePage from './HomePage';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Stan logowania
   const [loading, setLoading] = useState(true); // Stan ładowania, żeby nie renderować komponentów przed sprawdzeniem logowania
@@ -28,35 +28,35 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <header>
-          <h1>FilmWeb Portal</h1>
-          <nav>
-            {isLoggedIn ? (
-              <>
-                <Link to="/dashboard">Dashboard</Link> | 
-                <Link to="/addmovie">Add Movie</Link> | 
-                <button onClick={handleLogout}>Logout</button>
-              </>
-            ) : (
-              <>
-                <Link to="/register">Register</Link> | 
-                <Link to="/login">Login</Link>
-              </>
-            )}
-          </nav>
-        </header>
+    <div>
+      <header>
+        <h1>FilmWeb Portal</h1>
+        <nav>
+          <Link to="/">Home</Link> | {/* Add Home link */}
+          {isLoggedIn ? (
+            <>
+              <Link to="/dashboard">Dashboard</Link> | 
+              <Link to="/addmovie">Add Movie</Link> | 
+              <button onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            <>
+              <Link to="/register">Register</Link> | 
+              <Link to="/login">Login</Link>
+            </>
+          )}
+        </nav>
+      </header>
 
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-          
-          {/* Przekierowanie na dashboard, jeśli użytkownik jest zalogowany */}
-          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
-          <Route path="/addmovie" element={isLoggedIn ? <AddMovie /> : <Navigate to="/login" />} />
-        </Routes>
-      </div>
-    </Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} /> {/* Add HomePage route */}
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
+        <Route path="/addmovie" element={isLoggedIn ? <AddMovie /> : <Navigate to="/login" />} />
+      </Routes>
+    </div>
+  </Router>
   );
 }
 

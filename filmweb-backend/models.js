@@ -67,6 +67,10 @@ export const Movie = sequelize.define("Movie", {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  director: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
