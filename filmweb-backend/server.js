@@ -135,6 +135,26 @@ app.get("/api/movies", async (req, res) => {
   }
 });
 
+app.get('/api/movies/:id', async (req, res) => {
+  try {
+    const movie = await Movie.findByPk(req.params.id, {
+      include: [
+        { model: Comment, as: "comments", attributes: ["id", "content", "userId", "createdAt"] },
+        { model: Rating, as: "ratings", attributes: ["id", "value", "userId"] },
+      ],
+    });
+
+    if (!movie) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    res.json(movie);
+  } catch (error) {
+    console.error("Error fetching movie details:", error);
+    res.status(500).json({ message: "An error occurred while fetching movie details" });
+  }
+});
+
 
 
 // Uruchomienie serwera i synchronizacja bazy

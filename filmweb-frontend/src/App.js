@@ -5,6 +5,8 @@ import Login from './Login';
 import Dashboard from './Dashboard';
 import AddMovie from './AddMovie';
 import HomePage from './HomePage';
+import MovieDetails from './MovieDetails';
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Stan logowania
   const [loading, setLoading] = useState(true); // Stan ładowania, żeby nie renderować komponentów przed sprawdzeniem logowania
@@ -54,6 +56,7 @@ function App() {
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
         <Route path="/addmovie" element={isLoggedIn ? <AddMovie /> : <Navigate to="/login" />} />
+        <Route path="/movies/:id" element={<MovieDetails />} />
       </Routes>
     </div>
   </Router>

@@ -38,14 +38,14 @@ export const User = sequelize.define('User', {
 
 User.beforeCreate(async (user) => {
   const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt); 
+  user.password = await bcrypt.hash(user.password, salt);
 });
 
 User.prototype.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-export const Movie = sequelize.define("Movie", {
+export const Movie = sequelize.define('Movie', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -55,9 +55,13 @@ export const Movie = sequelize.define("Movie", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  director: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   description: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: true,
   },
   genre: {
     type: DataTypes.STRING,
@@ -67,27 +71,21 @@ export const Movie = sequelize.define("Movie", {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  director: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: User,
-      key: "id",
+      key: 'id',
     },
   },
 });
 
-Movie.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
-
-export const Comment = sequelize.define("Comment", {
+export const Comment = sequelize.define('Comment', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true, 
+    autoIncrement: true,
   },
   content: {
     type: DataTypes.TEXT,
@@ -97,24 +95,21 @@ export const Comment = sequelize.define("Comment", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Movie, 
-      key: "id",
+      model: Movie,
+      key: 'id',
     },
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: User, 
-      key: "id",
+      model: User,
+      key: 'id',
     },
   },
 });
 
-Comment.belongsTo(Movie, { foreignKey: "movieId", onDelete: "CASCADE" });
-Comment.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
-
-export const Rating = sequelize.define("Rating", {
+export const Rating = sequelize.define('Rating', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -125,28 +120,40 @@ export const Rating = sequelize.define("Rating", {
     allowNull: false,
     validate: {
       min: 0,
-      max: 10, 
+      max: 10,
     },
   },
   movieId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Movie, 
-      key: "id",
+      model: Movie,
+      key: 'id',
     },
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: User, 
-      key: "id",
+      model: User,
+      key: 'id',
     },
   },
 });
 
-Rating.belongsTo(Movie, { foreignKey: "movieId", onDelete: "CASCADE" });
-Rating.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+// Definiowanie relacji po zainicjalizowaniu wszystkich modeli
+Movie.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Movie.hasMany(Comment, { as: 'comments', foreignKey: 'movieId', onDelete: 'CASCADE' });
+Movie.hasMany(Rating, { as: 'ratings', foreignKey: 'movieId', onDelete: 'CASCADE' });
 
-await sequelize.sync({ alter: true }).then(() => console.log('Database synchronized')).catch(err => console.error('Database synchronization error:', err));
+Comment.belongsTo(Movie, { foreignKey: 'movieId', onDelete: 'CASCADE' });
+Comment.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
+Rating.belongsTo(Movie, { foreignKey: 'movieId', onDelete: 'CASCADE' });
+Rating.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
+// Synchronizacja bazy danych
+await sequelize
+  .sync({ alter: true })
+  .then(() => console.log('Database synchronized'))
+  .catch((err) => console.error('Database synchronization error:', err));
