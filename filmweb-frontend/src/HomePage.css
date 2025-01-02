@@ -80,3 +80,58 @@
   .movie-card:hover {
     transform: translateY(-5px);
   }
+  .comments-section {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+  }
+  
+  .add-comment textarea {
+    width: 100%;
+    min-height: 60px;
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .comment-card {
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 8px 0;
+    background: #f9f9f9;
+  }
+  
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .avatar-placeholder {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .delete-comment {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    font-size: 16px;
+  }

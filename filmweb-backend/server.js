@@ -125,35 +125,57 @@ app.post('/api/movies', verifyToken, async (req, res) => {
   }
 });
 
-app.get("/api/movies", async (req, res) => {
+app.get('/api/movies', async (req, res) => {
   try {
-    const movies = await Movie.findAll({ include: User });
-    res.json(movies);
-  } catch (err) {
-    console.error("Error fetching plans:", err);
-    res.status(500).send("Could not fetch plans");
+    const movies = await Movie.findAll({
+      include: [
+        { model: Rating, as: 'ratings', attributes: ['value'] },
+      ],
+    });
+
+    const moviesWithRatings = movies.map((movie) => {
+      const ratings = movie.ratings.map((r) => r.value);
+      const averageRating = ratings.length ? ratings.reduce((sum, val) => sum + val, 0) / ratings.length : null;
+      return { ...movie.toJSON(), averageRating };
+    });
+
+    res.json(moviesWithRatings);
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+    res.status(500).send('Could not fetch movies');
   }
 });
-
-app.get('/api/movies/:id', async (req, res) => {
+app.get('/api/movies/:id', verifyToken, async (req, res) => {
   try {
     const movie = await Movie.findByPk(req.params.id, {
       include: [
-        { model: Comment, as: "comments", attributes: ["id", "content", "userId", "createdAt"] },
-        { model: Rating, as: "ratings", attributes: ["id", "value", "userId"] },
+        { model: Comment, as: 'comments', attributes: ['id', 'content', 'userId', 'createdAt'] },
+        { model: Rating, as: 'ratings', attributes: ['id', 'value', 'userId'] },
       ],
     });
 
     if (!movie) {
-      return res.status(404).json({ message: "Movie not found" });
+      return res.status(404).json({ message: 'Movie not found' });
     }
 
-    res.json(movie);
+    // Obliczanie średniej oceny
+    const ratings = movie.ratings.map((r) => r.value);
+    const averageRating = ratings.length ? ratings.reduce((sum, val) => sum + val, 0) / ratings.length : null;
+
+    // Znajdź ocenę użytkownika
+    const userRating = movie.ratings.find((r) => r.userId === req.userId);
+
+    res.json({
+      ...movie.toJSON(),
+      averageRating,
+      userRating: userRating ? userRating.value : null,
+    });
   } catch (error) {
-    console.error("Error fetching movie details:", error);
-    res.status(500).json({ message: "An error occurred while fetching movie details" });
+    console.error('Error fetching movie details:', error);
+    res.status(500).json({ message: 'An error occurred while fetching movie details' });
   }
 });
+
 
 app.post('/api/movies/:id/rate', verifyToken, async (req, res) => {
   const { id } = req.params;
@@ -192,6 +214,57 @@ app.get('/api/users/ratings', verifyToken, async (req, res) => {
     res.json(ratings);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching ratings' });
+  }
+});
+
+app.post('/api/movies/:id/comments', verifyToken, async (req, res) => {
+  const { id } = req.params; // ID filmu
+  const { content } = req.body; // Treść komentarza
+
+  if (!content) {
+    return res.status(400).json({ message: 'Content is required' });
+  }
+
+  try {
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
+    const comment = await Comment.create({
+      content,
+      movieId: id,
+      userId: req.userId,
+    });
+
+    res.status(201).json({ message: 'Comment added successfully', comment });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ message: 'An error occurred while adding the comment' });
+  }
+});
+
+app.get('/api/movies/:id/comments', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
+    const comments = await Comment.findAll({
+      where: { movieId: id },
+      include: [
+        { model: User, attributes: ['id', 'userName'] } // Dołączenie informacji o użytkowniku
+      ],
+      order: [['createdAt', 'DESC']], // Sortowanie po dacie dodania
+    });
+
+    res.json(comments);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ message: 'An error occurred while fetching comments' });
   }
 });
 

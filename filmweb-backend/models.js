@@ -119,7 +119,7 @@ export const Rating = sequelize.define('Rating', {
     type: DataTypes.FLOAT,
     allowNull: false,
     validate: {
-      min: 0,
+      min: 1,
       max: 10,
     },
   },

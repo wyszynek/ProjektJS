@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './StarRating.css';
 
 function StarRating({ initialRating = 0, onRatingChange, userRating = null }) {
   const [hover, setHover] = useState(null);
   const [rating, setRating] = useState(initialRating);
 
+  useEffect(() => {
+    setRating(initialRating);
+  }, [initialRating]);
+ 
   const handleRating = (value) => {
     setRating(value);
     onRatingChange(value);

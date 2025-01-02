@@ -17,13 +17,18 @@ function MovieDetails() {
     try {
       const response = await axios.get(`http://localhost:3001/api/movies/${id}`);
       setMovie(response.data);
+      
       if (isLoggedIn) {
         const token = localStorage.getItem('token');
-        const ratingResponse = await axios.get(
-          `http://localhost:3001/api/movies/${id}/userRating`,
-          { headers: { Authorization: `Bearer ${token}` }}
-        );
-        setUserRating(ratingResponse.data.rating);
+        try {
+          const userRatingResponse = await axios.get(
+            `http://localhost:3001/api/movies/${id}/userRating`,
+            { headers: { Authorization: `Bearer ${token}` }}
+          );
+          setUserRating(userRatingResponse.data.rating);
+        } catch (ratingError) {
+          console.error('Error fetching user rating:', ratingError);
+        }
       }
     } catch (error) {
       setError('Error fetching movie details: ' + error.message);
@@ -57,6 +62,18 @@ function MovieDetails() {
       fetchMovieDetails();
     } catch (error) {
       setError('Error adding comment: ' + error.message);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/api/comments/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchMovieDetails();
+    } catch (error) {
+      setError('Error deleting comment: ' + error.message);
     }
   };
 
@@ -101,34 +118,52 @@ function MovieDetails() {
       </div>
 
       <div className="comments-section">
-        <h3>Comments</h3>
-        {isLoggedIn && (
-          <div className="add-comment">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-            />
-            <button onClick={handleAddComment}>Post Comment</button>
-          </div>
-        )}
-
-        <div className="comments-list">
-          {movie.comments && movie.comments.length > 0 ? (
-            movie.comments.map((comment) => (
-              <div key={comment.id} className="comment-card">
-                <p>{comment.content}</p>
-                <small>
-                  By {comment.User?.userName || 'Anonymous'} on{' '}
-                  {new Date(comment.createdAt).toLocaleDateString()}
-                </small>
-              </div>
-            ))
-          ) : (
-            <p>No comments yet.</p>
-          )}
-        </div>
+    <h3>Comments</h3>
+    {isLoggedIn && (
+      <div className="add-comment">
+        <textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder="Add a comment..."
+        />
+        <button onClick={handleAddComment}>Post Comment</button>
       </div>
+    )}
+
+    <div className="comments-list">
+      {movie.comments && movie.comments.length > 0 ? (
+        movie.comments.map((comment) => (
+          <div key={comment.id} className="comment-card">
+            <div className="comment-header">
+              <div className="user-profile">
+                <div className="user-avatar">
+                  {/* Placeholder for future avatar */}
+                  <div className="avatar-placeholder">
+                    {comment.User?.userName?.charAt(0)}
+                  </div>
+                </div>
+                <span className="user-name">{comment.User?.userName}</span>
+              </div>
+              {comment.userId === JSON.parse(localStorage.getItem('user'))?.id && (
+                <button 
+                  onClick={() => handleDeleteComment(comment.id)}
+                  className="delete-comment"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            <p className="comment-content">{comment.content}</p>
+            <small className="comment-date">
+              {new Date(comment.createdAt).toLocaleDateString()}
+            </small>
+          </div>
+        ))
+      ) : (
+        <p>No comments yet.</p>
+      )}
+    </div>
+  </div>
     </div>
   );
 }
