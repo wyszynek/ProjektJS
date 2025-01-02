@@ -145,12 +145,17 @@ app.get('/api/movies', async (req, res) => {
     res.status(500).send('Could not fetch movies');
   }
 });
-app.get('/api/movies/:id', verifyToken, async (req, res) => {
+app.get('/api/movies/:id', async (req, res) => {
   try {
     const movie = await Movie.findByPk(req.params.id, {
       include: [
-        { model: Comment, as: 'comments', attributes: ['id', 'content', 'userId', 'createdAt'] },
+        { model: Comment,  as: 'comments',
+          include: [{ 
+            model: User,
+            attributes: ['userName']
+          }], attributes: ['id', 'content', 'userId', 'createdAt'] },
         { model: Rating, as: 'ratings', attributes: ['id', 'value', 'userId'] },
+        { model: User, attributes: ['userName'] },
       ],
     });
 
@@ -175,7 +180,6 @@ app.get('/api/movies/:id', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'An error occurred while fetching movie details' });
   }
 });
-
 
 app.post('/api/movies/:id/rate', verifyToken, async (req, res) => {
   const { id } = req.params;
@@ -203,7 +207,6 @@ app.post('/api/movies/:id/rate', verifyToken, async (req, res) => {
   }
 });
 
-// Get user's rated movies
 app.get('/api/users/ratings', verifyToken, async (req, res) => {
   try {
     const ratings = await Rating.findAll({
@@ -218,8 +221,8 @@ app.get('/api/users/ratings', verifyToken, async (req, res) => {
 });
 
 app.post('/api/movies/:id/comments', verifyToken, async (req, res) => {
-  const { id } = req.params; // ID filmu
-  const { content } = req.body; // Treść komentarza
+  const { id } = req.params;
+  const { content } = req.body;
 
   if (!content) {
     return res.status(400).json({ message: 'Content is required' });
@@ -256,9 +259,9 @@ app.get('/api/movies/:id/comments', async (req, res) => {
     const comments = await Comment.findAll({
       where: { movieId: id },
       include: [
-        { model: User, attributes: ['id', 'userName'] } // Dołączenie informacji o użytkowniku
+        { model: User, attributes: ['id', 'userName'] } 
       ],
-      order: [['createdAt', 'DESC']], // Sortowanie po dacie dodania
+      order: [['createdAt', 'DESC']],
     });
 
     res.json(comments);

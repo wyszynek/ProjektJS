@@ -8,21 +8,28 @@ function Login({ setIsLoggedIn }) {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  // // Wyczyszczenie starego tokena
+  // React.useEffect(() => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');
+  // }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3001/api/auth/login', {
         identifier,
-        password
+        password,
       });
+
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token); // Zapisujemy token w localStorage
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('user', JSON.stringify(response.data.user)); // Zapisujemy użytkownika
       
       setIsLoggedIn(true); 
-      navigate('/dashboard'); 
+      navigate('/dashboard'); // Przejście na stronę użytkownika
     } catch (error) {
-      setMessage(error.response.data.message || 'An error occurred');
+      setMessage(error.response?.data?.message || 'An error occurred'); // Obsługa błędu
     }
   };
 
