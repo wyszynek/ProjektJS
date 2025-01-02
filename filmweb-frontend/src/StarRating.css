@@ -1,0 +1,25 @@
+.star-rating {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .star {
+    cursor: pointer;
+    font-size: 24px;
+    color: #ddd;
+    transition: color 0.2s;
+  }
+  
+  .star.active {
+    color: #ffd700;
+  }
+  
+  .star.user-rated {
+    color: #ff9800;
+  }
+  
+  .rating-value {
+    margin-left: 10px;
+    font-size: 16px;
+  }

@@ -53,3 +53,30 @@
     border-radius: 5px;
     font-size: 16px;
   }
+
+  .rating-section {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+  }
+  
+  .average-rating {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .user-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .movie-card {
+    position: relative;
+    transition: transform 0.2s;
+  }
+  
+  .movie-card:hover {
+    transform: translateY(-5px);
+  }

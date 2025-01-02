@@ -155,7 +155,45 @@ app.get('/api/movies/:id', async (req, res) => {
   }
 });
 
+app.post('/api/movies/:id/rate', verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const { value } = req.body;
+  const userId = req.userId;
 
+  try {
+    const rating = await Rating.findOne({ 
+      where: { movieId: id, userId } 
+    });
+
+    if (rating) {
+      await rating.update({ value });
+    } else {
+      await Rating.create({
+        movieId: id,
+        userId,
+        value
+      });
+    }
+
+    res.json({ message: 'Rating saved successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving rating' });
+  }
+});
+
+// Get user's rated movies
+app.get('/api/users/ratings', verifyToken, async (req, res) => {
+  try {
+    const ratings = await Rating.findAll({
+      where: { userId: req.userId },
+      include: [{ model: Movie }],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(ratings);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching ratings' });
+  }
+});
 
 // Uruchomienie serwera i synchronizacja bazy
 const startServer = async () => {
