@@ -6,7 +6,9 @@ import sequelize from './db.js';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken'; 
-
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 dotenv.config();
 
 const app = express();
@@ -46,14 +48,22 @@ app.post('/api/auth/register', async (req, res) => {
 
 //logowanie użytkownika
 app.post('/api/auth/login', async (req, res) => {
-  const { identifier, password } = req.body; // identifier to może być email lub userName
+  const { identifier, password } = req.body;
 
   if (!identifier || !password) {
     return res.status(400).json({ message: 'Email/username and password are required' });
   }
 
   try {
-    const user = await User.findOne({ where: { [Op.or]: [{ email: identifier }, { userName: identifier }] } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: identifier }, 
+          { userName: identifier }
+        ] 
+      },
+      attributes: ['id', 'userName', 'email', 'password', 'avatarUrl'] 
+    });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or username' });
@@ -64,16 +74,19 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid password' });
     }
 
-    // Generowanie tokena JWT
     const token = jwt.sign(
-      { id: user.id, userName: user.userName, email: user.email }, // Dane, które chcemy zawrzeć w tokenie
-      process.env.JWT_SECRET, // Klucz sekretu
+      { id: user.id, userName: user.userName, email: user.email },
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
     res.status(200).json({
       message: 'Login successful',
-      user: { userName: user.userName, email: user.email },
+      user: {
+        userName: user.userName,
+        email: user.email,
+        avatarUrl: user.avatarUrl 
+      },
       token: token,
     });
   } catch (error) {
@@ -81,7 +94,6 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(500).json({ message: 'An error occurred during login' });
   }
 });
-
 
 
 // Middleware do weryfikacji tokena
@@ -270,6 +282,70 @@ app.get('/api/movies/:id/comments', async (req, res) => {
     res.status(500).json({ message: 'An error occurred while fetching comments' });
   }
 });
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = 'images/avatars';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `avatar-${req.userId}-${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .jpg, .jpeg and .png files are allowed!'));
+    }
+  }
+});
+
+// dodawanie avatara
+app.post('/api/users/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const user = await User.findByPk(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // jeśli użytkownik ma już avatar, usuń go
+    if (user.avatarUrl) {
+      const oldPath = path.join(__dirname, user.avatarUrl);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    const avatarUrl = `images/avatars/${req.file.filename}`;
+    await user.update({ avatarUrl });
+
+    res.json({ 
+      message: 'Avatar uploaded successfully',
+      avatarUrl
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error uploading avatar' });
+  }
+});
+
+app.use('/images', express.static('images'));
+
 
 // Uruchomienie serwera i synchronizacja bazy
 const startServer = async () => {

@@ -34,6 +34,10 @@ export const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  avatarUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
 });
 
 User.beforeCreate(async (user) => {

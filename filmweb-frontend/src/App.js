@@ -6,10 +6,12 @@ import Dashboard from './Dashboard';
 import AddMovie from './AddMovie';
 import HomePage from './HomePage';
 import MovieDetails from './MovieDetails';
+import './App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Stan logowania
   const [loading, setLoading] = useState(true); // Stan ładowania, żeby nie renderować komponentów przed sprawdzeniem logowania
+  const user = JSON.parse(localStorage.getItem('user'));
 
   // Używamy useEffect, żeby sprawdzić token po załadowaniu komponentu
   useEffect(() => {
@@ -31,10 +33,12 @@ function App() {
   return (
     <Router>
     <div>
-      <header>
-        <h1>FilmWeb Portal</h1>
+    <header>
+        <div className="header-left">
+          <h1>FilmWeb Portal</h1>
+        </div>
         <nav>
-          <Link to="/">Home</Link> | {/* Add Home link */}
+          <Link to="/">Home</Link> |
           {isLoggedIn ? (
             <>
               <Link to="/dashboard">Dashboard</Link> | 
@@ -48,6 +52,28 @@ function App() {
             </>
           )}
         </nav>
+        <nav>
+            {isLoggedIn && (
+                <div className="user-profile">
+                <div className="nav-avatar-container">
+                  {user?.avatarUrl ? (
+                    <img 
+                      src={`http://localhost:3001/${user.avatarUrl}`}
+                      alt="User avatar"
+                      className="nav-avatar-image"
+                    />
+                  ) : (
+                    <div className="nav-avatar-placeholder">
+                      {user?.userName?.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <Link to="/dashboard" className="username-link">
+                  {user?.userName}
+                </Link>
+              </div>
+            )}
+            </nav>
       </header>
 
       <Routes>
