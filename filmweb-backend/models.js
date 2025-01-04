@@ -83,6 +83,10 @@ export const Movie = sequelize.define('Movie', {
       key: 'id',
     },
   },
+  imageUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
 });
 
 export const Comment = sequelize.define('Comment', {

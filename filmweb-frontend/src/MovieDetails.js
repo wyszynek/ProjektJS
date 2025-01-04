@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import StarRating from './StarRating';
 import './MovieDetails.css';
-
+import './Shared.css';
 function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
@@ -18,17 +18,12 @@ function MovieDetails() {
       const response = await axios.get(`http://localhost:3001/api/movies/${id}`);
       setMovie(response.data);
       
+      // Get user rating from movie data instead of separate request
       if (isLoggedIn) {
-        const token = localStorage.getItem('token');
-        try {
-          const userRatingResponse = await axios.get(
-            `http://localhost:3001/api/movies/${id}/userRating`,
-            { headers: { Authorization: `Bearer ${token}` }}
-          );
-          setUserRating(userRatingResponse.data.rating);
-        } catch (ratingError) {
-          console.error('Error fetching user rating:', ratingError);
-        }
+        const userRating = response.data.ratings?.find(
+          r => r.userId === JSON.parse(localStorage.getItem('user'))?.id
+        )?.value;
+        setUserRating(userRating || null);
       }
     } catch (error) {
       setError('Error fetching movie details: ' + error.message);

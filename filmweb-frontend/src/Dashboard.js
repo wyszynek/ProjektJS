@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Dashboard.css'; 
+import './Shared.css';
 function Dashboard() {
   const [ratedMovies, setRatedMovies] = useState([]);
   const [avatarFile, setAvatarFile] = useState(null);
@@ -53,9 +54,9 @@ function Dashboard() {
   };
   return (
     <div className="dashboard">
-      <div className="profile-section">
+      <div className="dashboard-profile-section">
         <h2>Your Profile</h2>
-        <div className="avatar-section">
+        <div className="dashboard-avatar-section">
           <div className="dashboard-avatar-container">
             {JSON.parse(localStorage.getItem('user'))?.avatarUrl ? (
               <img 
@@ -69,8 +70,8 @@ function Dashboard() {
               </div>
             )}
           </div>
-          <div className="avatar-upload">
-            <label htmlFor="avatar-input" className="upload-button">
+          <div className="dashboard-avatar-upload">
+            <label htmlFor="avatar-input" className="dashboard-upload-button">
               Change Avatar
             </label>
             <input
@@ -84,23 +85,38 @@ function Dashboard() {
         </div>
       </div>
   
-      <section className="rated-movies-section">
+      <section className="dashboard-rated-section">
         <h2>Your Rated Movies</h2>
-        <div className="movies-grid">
+        <div className="dashboard-movies-grid">
           {ratedMovies.length > 0 ? (
             ratedMovies.map(rating => (
-              <div key={rating.movieId} className="movie-card">
-                <Link to={`/movies/${rating.movieId}`}>
-                  <h4>{rating.Movie.title}</h4>
-                  <div className="rating-info">
-                    <p>Your rating: {rating.value}/10</p>
-                    <p>Rated on: {new Date(rating.createdAt).toLocaleDateString()}</p>
+              <div key={rating.movieId} className="dashboard-movie-card">
+                <Link to={`/movies/${rating.movieId}`} className="dashboard-movie-link">
+                  <div className="dashboard-movie-image-container">
+                    {rating.Movie?.imageUrl ? (
+                      <img 
+                        src={`http://localhost:3001/${rating.Movie.imageUrl}`}
+                        alt={rating.Movie.title}
+                        className="dashboard-movie-image"
+                      />
+                    ) : (
+                      <div className="dashboard-movie-image-placeholder">
+                        <span>No image available</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="dashboard-movie-info">
+                    <h4>{rating.Movie?.title}</h4>
+                    <div className="dashboard-rating-info">
+                      <p>Your rating: {rating.value}/10</p>
+                      <p>Rated on: {new Date(rating.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
                 </Link>
               </div>
             ))
           ) : (
-            <p className="no-movies">You haven't rated any movies yet.</p>
+            <p className="dashboard-no-movies">You haven't rated any movies yet.</p>
           )}
         </div>
       </section>

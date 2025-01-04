@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import StarRating from './StarRating';
 import './HomePage.css';
-
+import './Shared.css';
 function HomePage() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,95 +91,60 @@ function HomePage() {
   return (
     <div className="home-page">
       <h1>Welcome to FilmWeb</h1>
-
+  
       <input
         type="text"
         placeholder="Search movies..."
         value={searchQuery}
         onChange={handleSearchChange}
-        className="search-bar"
+        className="home-search-bar"
       />
-
-      <div className="movies-grid">
+  
+      <div className="home-movies-grid">
         {filteredMovies.length > 0 ? (
           filteredMovies.map((movie) => (
-            <div key={movie.id} className="movie-card">
-              <h3>{movie.title}</h3>
-              <div className="movie-info">
-                <div className="rating-section">
-                  <p className="average-rating">
+            <div key={movie.id} className="home-movie-card">
+              <div className="home-movie-image-container">
+                {movie.imageUrl ? (
+                  <img 
+                    src={`http://localhost:3001/${movie.imageUrl}`}
+                    alt={movie.title}
+                    className="home-movie-image"
+                  />
+                ) : (
+                  <div className="home-movie-image-placeholder">
+                    <span>No image available</span>
+                  </div>
+                )}
+              </div>
+              <div className="home-movie-info">
+                <h3>{movie.title}</h3>
+                <div className="home-rating-section">
+                  <p className="home-average-rating">
                     Average Rating: {movie.ratings?.length > 0
                       ? (movie.ratings.reduce((sum, r) => sum + r.value, 0) / movie.ratings.length).toFixed(1)
                       : 'No ratings'}
                   </p>
                   {isLoggedIn && (
-                    <div className="user-rating">
-                      <StarRating
-                        initialRating={movie.ratings?.find(r => r.userId === JSON.parse(localStorage.getItem('user'))?.id)?.value || 0}
-                        onRatingChange={(value) => handleRating(movie.id, value)}
-                        userRating={movie.ratings?.find(r => r.userId === JSON.parse(localStorage.getItem('user'))?.id)?.value}
-                      />
-                    </div>
+                    <StarRating
+                      initialRating={movie.userRating || 0}
+                      onRatingChange={(value) => handleRating(movie.id, value)}
+                      userRating={movie.userRating}
+                    />
                   )}
                 </div>
-                <div onClick={() => handleMovieClick(movie.id)} style={{ cursor: 'pointer' }}>
+                <div onClick={() => handleMovieClick(movie.id)} className="home-movie-details">
                   <p><strong>Director:</strong> {movie.director}</p>
                   <p><strong>Genre:</strong> {movie.genre}</p>
                   <p><strong>Release Date:</strong> {new Date(movie.releaseDate).toLocaleDateString()}</p>
                 </div>
-              </div>
-              <p className="movie-description">{movie.description}</p>
-              <p className="movie-added-by">Added by: {movie.User?.userName}</p>
-
-              <div className="comments-section">
-                <h4>Comments</h4>
-                {isLoggedIn && (
-                  <div className="add-comment">
-                    <textarea
-                      value={newComments[movie.id] || ''}
-                      onChange={(e) => setNewComments(prev => ({
-                        ...prev,
-                        [movie.id]: e.target.value
-                      }))}
-                      placeholder="Add a comment..."
-                    />
-                    <button onClick={() => handleAddComment(movie.id)}>Post Comment</button>
-                  </div>
-                )}
-                
-                <div className="comments-list">
-                  {movie.comments?.length > 0 ? (
-                    movie.comments.map((comment) => (
-                      <div key={comment.id} className="comment-card">
-                        <div className="comment-header">
-                          <div className="user-profile">
-                            <div className="avatar-placeholder">
-                              {comment.User?.userName?.charAt(0)}
-                            </div>
-                            <span>{comment.User?.userName}</span>
-                          </div>
-                          {comment.userId === JSON.parse(localStorage.getItem('user'))?.id && (
-                            <button 
-                              onClick={() => handleDeleteComment(comment.id)}
-                              className="delete-comment"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                        <p>{comment.content}</p>
-                        <small>{new Date(comment.createdAt).toLocaleDateString()}</small>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No comments yet</p>
-                  )}
-                </div>
+                <p className="home-movie-description">{movie.description}</p>
+                <p className="home-movie-added-by">Added by: {movie.User?.userName}</p>
               </div>
             </div>
           ))
         ) : (
-          <div>No movies found</div>
+          <div className="home-no-movies">No movies found</div>
         )}
       </div>
     </div>

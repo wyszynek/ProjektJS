@@ -1,18 +1,24 @@
-.profile-section {
+.dashboard {
     padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .dashboard-profile-section {
     background: white;
     border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   
-  .avatar-section {
+  .dashboard-avatar-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    margin: 20px 0;
+    gap: 20px;
   }
-
+  
   .dashboard-avatar-container {
     width: 250px;
     height: 250px;
@@ -36,10 +42,9 @@
     align-items: center;
     justify-content: center;
     font-size: 5rem;
-    font-weight: bold;
   }
   
-  .upload-button {
+  .dashboard-upload-button {
     padding: 8px 16px;
     background-color: #007bff;
     color: white;
@@ -48,6 +53,57 @@
     transition: background-color 0.3s;
   }
   
-  .upload-button:hover {
+  .dashboard-upload-button:hover {
     background-color: #0056b3;
+  }
+  
+  .dashboard-movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+  }
+  
+  .dashboard-movie-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .dashboard-movie-image-container {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+  }
+  
+  .dashboard-movie-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  
+  .dashboard-movie-image:hover {
+    transform: scale(1.05);
+  }
+  
+  .dashboard-movie-info {
+    padding: 15px;
+  }
+  
+  .dashboard-rating-info {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .dashboard-movie-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .dashboard-no-movies {
+    text-align: center;
+    color: #666;
+    padding: 20px;
   }
