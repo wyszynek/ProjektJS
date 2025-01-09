@@ -12,6 +12,8 @@ function AddMovie() {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
+  const genres = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi', 'Thriller', 'Documentary'];
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -25,6 +27,11 @@ function AddMovie() {
     
     if (!token) {
       setMessage('You must be logged in to add a movie.');
+      return;
+    }
+
+    if (!genre) {
+      setMessage('Please select a valid genre.');
       return;
     }
 
@@ -72,13 +79,18 @@ function AddMovie() {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
-        <input
-          type="text"
-          placeholder="Genre"
+        <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
           required
-        />
+        >
+          <option value="">Select Genre</option>
+          {genres.map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
+          ))}
+        </select>
         <input
           type="date"
           value={releaseDate}

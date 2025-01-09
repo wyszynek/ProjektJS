@@ -113,35 +113,12 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-// app.post('/api/movies', verifyToken, async (req, res) => {
-//   const { title, director, description, genre, releaseDate } = req.body;
-
-//   if (!title || !description || !genre || !releaseDate || !director) {
-//     return res.status(400).json({ message: 'All fields are required' });
-//   }
-
-//   try {
-//     const movie = await Movie.create({
-//       title,
-//       director,
-//       description,
-//       genre,
-//       releaseDate,
-//       userId: req.userId, 
-//     });
-
-//     res.status(201).json({ message: 'Movie added successfully', movie });
-//   } catch (error) {
-//     console.error('Error adding movie:', error);
-//     res.status(500).json({ message: 'An error occurred while adding the movie' });
-//   }
-// });
-
 app.get('/api/movies', async (req, res) => {
   try {
     const movies = await Movie.findAll({
       include: [
         { model: Rating, as: 'ratings', attributes: ['value'] },
+        { model: User, attributes: ['userName'] },
       ],
     });
 
@@ -373,7 +350,7 @@ const uploadMovie = multer({
   }
 });
 
-app.post('/api/movies', uploadMovie.single('image'), async (req, res) => {
+app.post('/api/movies', uploadMovie.single('image'), verifyToken, async (req, res) => {
   try {
     const { title, director, description, genre, releaseDate } = req.body;
     
@@ -387,7 +364,7 @@ app.post('/api/movies', uploadMovie.single('image'), async (req, res) => {
       description,
       genre,
       releaseDate,
-      userId: 4, // TUTAJ TRZEBA ZMIENIĆ NA ID ZALOGOWANEGO UŻYTKOWNIKA TO JEST TYLKO DO TESTÓW
+      userId: req.userId,
       imageUrl: req.file ? `images/movies/${req.file.filename}` : null
     });
 
@@ -399,7 +376,6 @@ app.post('/api/movies', uploadMovie.single('image'), async (req, res) => {
 });
 
 app.use('/images', express.static('images'));
-
 
 // Uruchomienie serwera i synchronizacja bazy
 const startServer = async () => {
