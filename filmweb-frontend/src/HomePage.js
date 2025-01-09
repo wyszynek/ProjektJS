@@ -4,11 +4,13 @@ import axios from 'axios';
 import StarRating from './StarRating';
 import './HomePage.css';
 import './Shared.css';
+
 function HomePage() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortCriteria, setSortCriteria] = useState('title'); // Domyślnie sortowanie po tytule
   const [newComments, setNewComments] = useState({});
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('token');
@@ -43,42 +45,41 @@ function HomePage() {
     }
   };
 
-  const handleAddComment = async (movieId) => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        `http://localhost:3001/api/movies/${movieId}/comments`,
-        { content: newComments[movieId] },
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-      setNewComments(prev => ({...prev, [movieId]: ''}));
-      const response = await axios.get('http://localhost:3001/api/movies');
-      setMovies(response.data);
-    } catch (error) {
-      setError('Error adding comment: ' + error.message);
-    }
-  };
-
-  const handleDeleteComment = async (commentId) => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(
-        `http://localhost:3001/api/comments/${commentId}`,
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-      const response = await axios.get('http://localhost:3001/api/movies');
-      setMovies(response.data);
-    } catch (error) {
-      setError('Error deleting comment: ' + error.message);
-    }
-  };
-
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  const filteredMovies = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const handleSortChange = (e) => {
+    setSortCriteria(e.target.value);
+  };
+
+  const sortMovies = (movies) => {
+    return [...movies].sort((a, b) => {
+      switch (sortCriteria) {
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'genre':
+          return a.genre.localeCompare(b.genre);
+        case 'popularity':
+          const avgRatingA = a.ratings?.length > 0
+            ? a.ratings.reduce((sum, r) => sum + r.value, 0) / a.ratings.length
+            : 0;
+          const avgRatingB = b.ratings?.length > 0
+            ? b.ratings.reduce((sum, r) => sum + r.value, 0) / b.ratings.length
+            : 0;
+          return avgRatingB - avgRatingA; // Sortowanie od najwyższej do najniższej popularności
+        case 'releaseDate':
+          return new Date(b.releaseDate) - new Date(a.releaseDate); // Sortowanie od najnowszej do najstarszej
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const filteredMovies = sortMovies(
+    movies.filter((movie) =>
+      movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
 
   const handleMovieClick = (movieId) => {
@@ -91,15 +92,24 @@ function HomePage() {
   return (
     <div className="home-page">
       <h1>Welcome to FilmWeb</h1>
-  
-      <input
-        type="text"
-        placeholder="Search movies..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        className="home-search-bar"
-      />
-  
+
+      <div className="home-controls">
+        <input
+          type="text"
+          placeholder="Search movies..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="home-search-bar"
+        />
+        Sort By: 
+        <select value={sortCriteria} onChange={handleSortChange} className="home-sort-dropdown">
+          <option value="title">Title</option>
+          <option value="genre">Genre</option>
+          {/* <option value="popularity">Popularity</option> */}
+          <option value="releaseDate">Release Date</option>
+        </select>
+      </div>
+
       <div className="home-movies-grid">
         {filteredMovies.length > 0 ? (
           filteredMovies.map((movie) => (

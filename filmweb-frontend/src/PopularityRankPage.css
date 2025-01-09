@@ -1,0 +1,111 @@
+.popularity-rank-page {
+    padding: 20px;
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+  }
+  
+  h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .popularity-movies-grid {
+    display: flex;
+    flex-direction: column; /* Ustawienie filmów w pionie */
+    gap: 15px;
+    align-items: center; /* Wyśrodkowanie kart filmów */
+  }
+  
+  .popularity-movie-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    width: 80%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+  
+  .popularity-movie-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .popularity-movie-card img {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+  
+  .popularity-movie-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .popularity-movie-info h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .popularity-movie-info p {
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  .popularity-movie-rank {
+    font-size: 1.5rem;
+    color: #f39c12;
+    font-weight: bold;
+    margin-right: 20px;
+    text-align: center;
+  }
+  
+  .popularity-movie-info strong {
+    color: #333;
+  }
+  
+  .popularity-movie-details {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .popularity-movie-description {
+    font-size: 0.95rem;
+    color: #777;
+    margin-top: 10px;
+  }
+  
+  .popularity-movie-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popularity-movie-image-placeholder {
+    width: 100px;
+    height: 150px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  
+  .popularity-movie-added-by {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 10px;
+  }
+  

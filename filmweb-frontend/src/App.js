@@ -6,6 +6,7 @@ import Dashboard from './Dashboard';
 import AddMovie from './AddMovie';
 import HomePage from './HomePage';
 import MovieDetails from './MovieDetails';
+import PopularityRankPage from './PopularityRankPage';
 import './App.css';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
         </div>
         <nav>
           <Link to="/">Home</Link> |
+          <Link to="/popularity">Ranking</Link> |
           {isLoggedIn ? (
             <>
               <Link to="/dashboard">Dashboard</Link> | 
@@ -83,6 +85,7 @@ function App() {
         <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
         <Route path="/addmovie" element={isLoggedIn ? <AddMovie /> : <Navigate to="/login" />} />
         <Route path="/movies/:id" element={<MovieDetails />} />
+        <Route path="/popularity" element={<PopularityRankPage />} />
       </Routes>
     </div>
   </Router>
