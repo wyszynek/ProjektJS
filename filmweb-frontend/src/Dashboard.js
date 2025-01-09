@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './Dashboard.css'; 
+import './Dashboard.css';
 import './Shared.css';
+
 function Dashboard() {
   const [ratedMovies, setRatedMovies] = useState([]);
+  const [watchedMovies, setWatchedMovies] = useState([]);  // Stan dla obejrzanych filmów
   const [avatarFile, setAvatarFile] = useState(null);
 
+  // Fetch rated movies
   useEffect(() => {
     const fetchRatedMovies = async () => {
       try {
@@ -22,6 +25,24 @@ function Dashboard() {
 
     fetchRatedMovies();
   }, []);
+
+  // Fetch watched movies
+  useEffect(() => {
+    const fetchWatchedMovies = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/api/users/watched', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setWatchedMovies(response.data);
+      } catch (error) {
+        console.error('Error fetching watched movies:', error);
+      }
+    };
+
+    fetchWatchedMovies();
+  }, []);
+
   const handleAvatarUpload = async (e) => {
     try {
       const file = e.target.files[0];
@@ -52,6 +73,7 @@ function Dashboard() {
       console.error('Error uploading avatar:', error);
     }
   };
+
   return (
     <div className="dashboard">
       <div className="dashboard-profile-section">
@@ -84,7 +106,8 @@ function Dashboard() {
           </div>
         </div>
       </div>
-  
+
+      {/* Rated Movies Section */}
       <section className="dashboard-rated-section">
         <h2>Your Rated Movies</h2>
         <div className="dashboard-movies-grid">
@@ -117,6 +140,42 @@ function Dashboard() {
             ))
           ) : (
             <p className="dashboard-no-movies">You haven't rated any movies yet.</p>
+          )}
+        </div>
+      </section>
+
+      {/* Watched Movies Section */}
+      <section className="dashboard-watched-section">
+        <h2>Your Watched Movies</h2>
+        <div className="dashboard-movies-grid">
+          {watchedMovies.length > 0 ? (
+            watchedMovies.map(movie => (
+              <div key={movie.movieId} className="dashboard-movie-card">
+                <Link to={`/movies/${movie.movieId}`} className="dashboard-movie-link">
+                  <div className="dashboard-movie-image-container">
+                    {movie.Movie?.imageUrl ? (
+                      <img 
+                        src={`http://localhost:3001/${movie.Movie.imageUrl}`}
+                        alt={movie.Movie.title}
+                        className="dashboard-movie-image"
+                      />
+                    ) : (
+                      <div className="dashboard-movie-image-placeholder">
+                        <span>No image available</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="dashboard-movie-info">
+                    <h4>{movie.Movie?.title}</h4>
+                    <div className="dashboard-watched-info">
+                      <p>Watched on: {new Date(movie.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))
+          ) : (
+            <p className="dashboard-no-movies">You haven't watched any movies yet.</p>
           )}
         </div>
       </section>

@@ -455,6 +455,22 @@ app.delete('/api/movies/:id/watched', verifyToken, async (req, res) => {
   }
 });
 
+app.get('/api/users/watched', verifyToken, async (req, res) => {
+  const userId = req.userId;
+
+  try {
+    const watchedMovies = await WatchedMovie.findAll({
+      where: { userId },
+      include: [{ model: Movie, attributes: ['id', 'title', 'imageUrl'] }]
+    });
+
+    res.status(200).json(watchedMovies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching watched movies' });
+  }
+});
+
 // Uruchomienie serwera i synchronizacja bazy
 const startServer = async () => {
   try {
