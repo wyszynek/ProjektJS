@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { Sequelize, Op } from 'sequelize';
-import { User, Movie, Comment, Rating } from './models.js'; 
+import { User, Movie, Comment, Rating, WatchedMovie } from './models.js'; 
 import sequelize from './db.js';  
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
@@ -376,6 +376,84 @@ app.post('/api/movies', uploadMovie.single('image'), verifyToken, async (req, re
 });
 
 app.use('/images', express.static('images'));
+
+app.get('/api/movies/:id/watched', verifyToken, async (req, res) => {
+  const movieId = req.params.id;
+  const userId = req.userId; // Pobranie ID użytkownika z tokenu
+
+  try {
+    // Sprawdzanie, czy film znajduje się w tabeli WatchedMovie
+    const watchedMovie = await WatchedMovie.findOne({
+      where: {
+        movieId: movieId,
+        userId: userId,
+      },
+    });
+
+    if (watchedMovie) {
+      return res.json({ isWatched: true });
+    } else {
+      return res.json({ isWatched: false });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error checking watched status' });
+  }
+});
+
+app.post('/api/movies/:id/watched', verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.userId;
+
+  try {
+    // Sprawdzenie, czy film już został oznaczony jako obejrzany przez użytkownika
+    const existingWatchedMovie = await WatchedMovie.findOne({
+      where: {
+        movieId: id,
+        userId,
+      },
+    });
+
+    if (existingWatchedMovie) {
+      return res.status(400).json({ message: 'Movie already marked as watched' });
+    }
+
+    // Dodanie nowego wpisu do tabeli WatchedMovie
+    await WatchedMovie.create({
+      movieId: id,
+      userId,
+    });
+
+    res.status(201).json({ message: 'Movie marked as watched' });
+  } catch (error) {
+    console.error('Error marking movie as watched:', error);
+    res.status(500).json({ message: 'Error marking movie as watched' });
+  }
+});
+
+app.delete('/api/movies/:id/watched', verifyToken, async (req, res) => {
+  const movieId = req.params.id;
+  const userId = req.userId; // Pobranie ID użytkownika z tokenu
+
+  try {
+    // Usuwanie rekordu z tabeli WatchedMovie
+    const deletedRecord = await WatchedMovie.destroy({
+      where: {
+        movieId: movieId,
+        userId: userId,
+      },
+    });
+
+    if (deletedRecord) {
+      return res.status(200).json({ message: 'Movie removed from watched list' });
+    } else {
+      return res.status(404).json({ message: 'Movie not found in watched list' });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error removing movie from watched list' });
+  }
+});
 
 // Uruchomienie serwera i synchronizacja bazy
 const startServer = async () => {

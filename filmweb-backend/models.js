@@ -149,6 +149,27 @@ export const Rating = sequelize.define('Rating', {
   },
 });
 
+export const WatchedMovie = sequelize.define('WatchedMovie', {
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id',
+    },
+  },
+  movieId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Movie,
+      key: 'id',
+    },
+  },
+}, {
+  timestamps: true,
+});
+
 // Definiowanie relacji po zainicjalizowaniu wszystkich modeli
 Movie.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Movie.hasMany(Comment, { as: 'comments', foreignKey: 'movieId', onDelete: 'CASCADE' });
@@ -159,6 +180,9 @@ Comment.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
 Rating.belongsTo(Movie, { foreignKey: 'movieId', onDelete: 'CASCADE' });
 Rating.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
+User.hasMany(WatchedMovie, { foreignKey: 'userId' });
+Movie.hasMany(WatchedMovie, { foreignKey: 'movieId' });
 
 // Synchronizacja bazy danych
 await sequelize

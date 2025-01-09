@@ -4,6 +4,7 @@ import axios from 'axios';
 import StarRating from './StarRating';
 import './MovieDetails.css';
 import './Shared.css';
+
 function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
@@ -11,19 +12,28 @@ function MovieDetails() {
   const [userRating, setUserRating] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState(null);
+  const [isWatched, setIsWatched] = useState(false); // added isWatched state
   const isLoggedIn = !!localStorage.getItem('token');
 
+  // Fetch movie details
   const fetchMovieDetails = async () => {
     try {
       const response = await axios.get(`http://localhost:3001/api/movies/${id}`);
       setMovie(response.data);
-      
+
       // Get user rating from movie data instead of separate request
       if (isLoggedIn) {
         const userRating = response.data.ratings?.find(
           r => r.userId === JSON.parse(localStorage.getItem('user'))?.id
         )?.value;
         setUserRating(userRating || null);
+
+        // Check if the movie is marked as watched
+        const token = localStorage.getItem('token');
+        const watchedResponse = await axios.get(`http://localhost:3001/api/movies/${id}/watched`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsWatched(watchedResponse.data.isWatched);  // Assume the response has `isWatched` field
       }
     } catch (error) {
       setError('Error fetching movie details: ' + error.message);
@@ -32,6 +42,7 @@ function MovieDetails() {
     }
   };
 
+  // Handle user rating
   const handleRating = async (value) => {
     try {
       const token = localStorage.getItem('token');
@@ -46,6 +57,7 @@ function MovieDetails() {
     }
   };
 
+  // Handle adding a comment
   const handleAddComment = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -60,6 +72,7 @@ function MovieDetails() {
     }
   };
 
+  // Handle deleting a comment
   const handleDeleteComment = async (commentId) => {
     try {
       const token = localStorage.getItem('token');
@@ -69,6 +82,26 @@ function MovieDetails() {
       fetchMovieDetails();
     } catch (error) {
       setError('Error deleting comment: ' + error.message);
+    }
+  };
+
+  // Mark or cancel the watched status
+  const handleMarkAsWatched = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (isWatched) {
+        await axios.delete(`http://localhost:3001/api/movies/${id}/watched`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsWatched(false);
+      } else {
+        await axios.post(`http://localhost:3001/api/movies/${id}/watched`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsWatched(true);
+      }
+    } catch (error) {
+      setError('Error marking movie as watched: ' + error.message);
     }
   };
 
@@ -112,53 +145,60 @@ function MovieDetails() {
         <p><strong>Description:</strong> {movie.description}</p>
       </div>
 
-      <div className="comments-section">
-    <h3>Comments</h3>
-    {isLoggedIn && (
-      <div className="add-comment">
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add a comment..."
-        />
-        <button onClick={handleAddComment}>Post Comment</button>
+      <div className="movie-actions">
+        {isLoggedIn && (
+          <button onClick={handleMarkAsWatched} className="mark-watched-btn">
+            {isWatched ? 'Cancel Watched' : 'Mark as Watched'}
+          </button>
+        )}
       </div>
-    )}
 
-    <div className="comments-list">
-      {movie.comments && movie.comments.length > 0 ? (
-        movie.comments.map((comment) => (
-          <div key={comment.id} className="comment-card">
-            <div className="comment-header">
-              <div className="user-profile">
-                <div className="user-avatar">
-                  {/* Placeholder for future avatar */}
-                  <div className="avatar-placeholder">
-                    {comment.User?.userName?.charAt(0)}
-                  </div>
-                </div>
-                <span className="user-name">{comment.User?.userName}</span>
-              </div>
-              {comment.userId === JSON.parse(localStorage.getItem('user'))?.id && (
-                <button 
-                  onClick={() => handleDeleteComment(comment.id)}
-                  className="delete-comment"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-            <p className="comment-content">{comment.content}</p>
-            <small className="comment-date">
-              {new Date(comment.createdAt).toLocaleDateString()}
-            </small>
+      <div className="comments-section">
+        <h3>Comments</h3>
+        {isLoggedIn && (
+          <div className="add-comment">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Add a comment..."
+            />
+            <button onClick={handleAddComment}>Post Comment</button>
           </div>
-        ))
-      ) : (
-        <p>No comments yet.</p>
-      )}
-    </div>
-  </div>
+        )}
+
+        <div className="comments-list">
+          {movie.comments && movie.comments.length > 0 ? (
+            movie.comments.map((comment) => (
+              <div key={comment.id} className="comment-card">
+                <div className="comment-header">
+                  <div className="user-profile">
+                    <div className="user-avatar">
+                      <div className="avatar-placeholder">
+                        {comment.User?.userName?.charAt(0)}
+                      </div>
+                    </div>
+                    <span className="user-name">{comment.User?.userName}</span>
+                  </div>
+                  {comment.userId === JSON.parse(localStorage.getItem('user'))?.id && (
+                    <button 
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="delete-comment"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                <p className="comment-content">{comment.content}</p>
+                <small className="comment-date">
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </small>
+              </div>
+            ))
+          ) : (
+            <p>No comments yet.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
