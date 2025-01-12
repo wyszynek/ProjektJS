@@ -6,8 +6,9 @@ import './Shared.css';
 
 function Dashboard() {
   const [ratedMovies, setRatedMovies] = useState([]);
-  const [watchedMovies, setWatchedMovies] = useState([]);  // Stan dla obejrzanych filmów
+  const [watchedMovies, setWatchedMovies] = useState([]); 
   const [avatarFile, setAvatarFile] = useState(null);
+  const [addedMovies, setAddedMovies] = useState([]);
 
   // Fetch rated movies
   useEffect(() => {
@@ -41,6 +42,22 @@ function Dashboard() {
     };
 
     fetchWatchedMovies();
+  }, []);
+
+  useEffect(() => {
+    const fetchAddedMovies = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const responce = await axios.get('http://localhost:3001/api/users/added-movie', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setAddedMovies(responce.data);
+      } catch (error) {
+        console.error('Error fetching added movies:', error);
+      }
+    };
+
+    fetchAddedMovies();
   }, []);
 
   const handleAvatarUpload = async (e) => {
@@ -176,6 +193,39 @@ function Dashboard() {
             ))
           ) : (
             <p className="dashboard-no-movies">You haven't watched any movies yet.</p>
+          )}
+        </div>
+      </section>
+
+      {/* Added Movies Section */}
+      <section className="dashboard-watched-section">
+        <h2>Your Added Movies</h2>
+        <div className="dashboard-movies-grid">
+          {addedMovies.length > 0 ? (
+            addedMovies.map(movie => (
+              <div key={movie.movieId || movie.id} className="dashboard-movie-card"> {/* Ensure proper key */}
+                <Link to={`/movies/${movie.movieId || movie.id}`} className="dashboard-movie-link"> {/* Pass the correct movieId */}
+                  <div className="dashboard-movie-image-container">
+                    {movie.Movie?.imageUrl ? (
+                      <img 
+                        src={`http://localhost:3001/${movie.Movie.imageUrl}`} // Adjust this if needed
+                        alt={movie.Movie.title}
+                        className="dashboard-movie-image"
+                      />
+                    ) : (
+                      <div className="dashboard-movie-image-placeholder">
+                        <span>No image available</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="dashboard-movie-info">
+                    <h4>{movie.Movie?.title}</h4>
+                  </div>
+                </Link>
+              </div>
+            ))
+          ) : (
+            <p className="dashboard-no-movies">You haven't added any movies yet.</p>
           )}
         </div>
       </section>

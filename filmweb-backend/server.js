@@ -418,6 +418,27 @@ app.get('/api/movies/:id/watched', verifyToken, async (req, res) => {
   }
 });
 
+app.get('/api/users/added-movie', verifyToken, async (req, res) => {
+  const userId = req.userId;
+
+  try {
+    const movies = await Movie.findAll({
+      where: {
+        userId: userId 
+      }
+    });
+    
+    if (!movies || movies.length === 0) {
+      return res.status(404).send('No movies found');
+    }
+    
+    res.status(200).json(movies); // Return the movies in the response
+  } catch (error) {
+    console.error('Error fetching added movies:', error);
+    res.status(500).send('Server error');
+  }
+});
+
 app.post('/api/movies/:id/watched', verifyToken, async (req, res) => {
   const { id } = req.params;
   const userId = req.userId;
@@ -500,5 +521,31 @@ const startServer = async () => {
     console.error('Error during synchronization:', error);
   }
 };
+
+app.delete('/api/movies/:id', verifyToken, async (req, res) => {
+  const movieId = req.params.id;
+  const userId = req.userId;  
+
+  try {
+    const movie = await Movie.findByPk(movieId);
+
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
+    if (movie.userId !== userId) {
+      return res.status(403).json({ message: 'You are not authorized to delete this movie' });
+    }
+
+    // Delete the movie
+    await movie.destroy();
+    
+    res.status(200).json({ message: 'Movie deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error deleting movie' });
+  }
+});
+
 
 startServer();

@@ -4,6 +4,7 @@ import axios from 'axios';
 import StarRating from './StarRating';
 import './MovieDetails.css';
 import './Shared.css';
+import { useNavigate } from 'react-router-dom';
 
 function MovieDetails() {
   const { id } = useParams();
@@ -12,8 +13,10 @@ function MovieDetails() {
   const [userRating, setUserRating] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState(null);
-  const [isWatched, setIsWatched] = useState(false); // added isWatched state
+  const [isWatched, setIsWatched] = useState(false); 
   const isLoggedIn = !!localStorage.getItem('token');
+  const [isMovieCreator, setIsMovieCreator] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch movie details
   const fetchMovieDetails = async () => {
@@ -33,12 +36,32 @@ function MovieDetails() {
         const watchedResponse = await axios.get(`http://localhost:3001/api/movies/${id}/watched`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setIsWatched(watchedResponse.data.isWatched);  // Assume the response has `isWatched` field
+        setIsWatched(watchedResponse.data.isWatched);
+
+        const loggedInUserId = JSON.parse(localStorage.getItem('user'))?.id;
+        if (response.data.userId === loggedInUserId) {
+          setIsMovieCreator(true);
+        }
       }
     } catch (error) {
       setError('Error fetching movie details: ' + error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteMovie = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete this movie?');
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/api/movies/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      navigate('/');
+    } catch (error) {
+      setError('Error deleting movie: ' + error.message);
     }
   };
 
@@ -151,6 +174,12 @@ function MovieDetails() {
         {isLoggedIn && (
           <button onClick={handleMarkAsWatched} className="mark-watched-btn">
             {isWatched ? 'Cancel Watched' : 'Mark as Watched'}
+          </button>
+        )}
+
+        {isMovieCreator && (
+          <button onClick={handleDeleteMovie} className="delete-movie-btn">
+            Delete Movie
           </button>
         )}
       </div>
