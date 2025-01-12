@@ -83,6 +83,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(200).json({
       message: 'Login successful',
       user: {
+        id: user.id,
         userName: user.userName,
         email: user.email,
         avatarUrl: user.avatarUrl 
@@ -261,6 +262,22 @@ app.get('/api/movies/:id/comments', async (req, res) => {
   }
 });
 
+app.delete('/api/movies/:movieId/comments/:commentId', verifyToken, async (req, res) => {
+  const { movieId, commentId } = req.params;
+  const userId = req.userId; 
+  
+  try {
+    const comment = await Comment.findOne({ where: { id: commentId, movieId, userId } });
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found or you are not authorized to delete this comment' });
+    }
+
+    await comment.destroy(); // Delete the comment
+    res.status(200).json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting comment: ' + error.message });
+  }
+});
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

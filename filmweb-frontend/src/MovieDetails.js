@@ -72,14 +72,16 @@ function MovieDetails() {
     }
   };
 
-  // Handle deleting a comment
   const handleDeleteComment = async (commentId) => {
+    const confirmed = window.confirm('Are you sure you want to delete this comment?');
+    if (!confirmed) return;
+  
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3001/api/comments/${commentId}`, {
+      await axios.delete(`http://localhost:3001/api/movies/${id}/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchMovieDetails();
+      fetchMovieDetails(); // Refresh the movie details to remove the deleted comment
     } catch (error) {
       setError('Error deleting comment: ' + error.message);
     }
@@ -168,32 +170,37 @@ function MovieDetails() {
 
         <div className="comments-list">
           {movie.comments && movie.comments.length > 0 ? (
-            movie.comments.map((comment) => (
-              <div key={comment.id} className="comment-card">
-                <div className="comment-header">
-                  <div className="user-profile">
-                    <div className="user-avatar">
-                      <div className="avatar-placeholder">
-                        {comment.User?.userName?.charAt(0)}
+            movie.comments.map((comment) => {
+              const loggedInUser = JSON.parse(localStorage.getItem('user'));
+              const isUserComment = loggedInUser && comment.userId === loggedInUser.id;
+
+              return (
+                <div key={comment.id} className="comment-card">
+                  <div className="comment-header">
+                    <div className="user-profile">
+                      <div className="user-avatar">
+                        <div className="avatar-placeholder">
+                          {comment.User?.userName?.charAt(0)}
+                        </div>
                       </div>
+                      <span className="user-name">{comment.User?.userName}</span>
                     </div>
-                    <span className="user-name">{comment.User?.userName}</span>
+
+                    {/* Only show delete button if user is logged in and the comment belongs to the logged-in user */}
+                    {isLoggedIn && isUserComment && (
+                      <button onClick={() => handleDeleteComment(comment.id)} className="delete-comment-btn">
+                        Delete
+                      </button>
+                    )}
                   </div>
-                  {comment.userId === JSON.parse(localStorage.getItem('user'))?.id && (
-                    <button 
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="delete-comment"
-                    >
-                      ✕
-                    </button>
-                  )}
+
+                  <p className="comment-content">{comment.content}</p>
+                  <small className="comment-date">
+                    {new Date(comment.createdAt).toLocaleDateString()}
+                  </small>
                 </div>
-                <p className="comment-content">{comment.content}</p>
-                <small className="comment-date">
-                  {new Date(comment.createdAt).toLocaleDateString()}
-                </small>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p>No comments yet.</p>
           )}
