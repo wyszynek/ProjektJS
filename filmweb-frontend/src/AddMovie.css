@@ -1,30 +1,101 @@
-.image-upload {
-    margin: 20px 0;
-    text-align: center;
-  }
-  
-  .image-preview {
-    margin: 10px 0;
-    max-width: 300px;
-    overflow: hidden;
-    border-radius: 8px;
-  }
-  
-  .image-preview img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
-  
-  .upload-button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .upload-button:hover {
-    background-color: #0056b3;
-  }
+.add-movie {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.add-movie h2 {
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.add-movie form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.add-movie input,
+.add-movie textarea,
+.add-movie select {
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s;
+}
+
+.add-movie input:focus,
+.add-movie textarea:focus,
+.add-movie select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.add-movie textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.add-movie .image-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.add-movie .upload-button {
+  background-color: #28a745;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.add-movie .upload-button:hover {
+  background-color: #218838;
+}
+
+.add-movie .image-preview {
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.add-movie .image-preview img {
+  max-width: 180px;
+  border-radius: 25px;
+  object-fit: cover;
+}
+
+.add-movie button {
+  padding: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-movie button:hover {
+  background-color: #0056b3;
+}
+
+.add-movie p {
+  text-align: center;
+  font-size: 14px;
+  color: #e74c3c;
+  margin-top: 25px;
+}

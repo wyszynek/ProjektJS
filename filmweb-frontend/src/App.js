@@ -7,11 +7,15 @@ import AddMovie from './AddMovie';
 import HomePage from './HomePage';
 import MovieDetails from './MovieDetails';
 import PopularityRankPage from './PopularityRankPage';
+import ConfirmationModal from './ConfirmationModal';
 import './App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true); // Stan ładowania, żeby nie renderować komponentów przed sprawdzeniem logowania
+
+  const [showModal, setShowModal] = useState(false); 
+
   const user = JSON.parse(localStorage.getItem('user'));
 
   // Używamy useEffect, żeby sprawdzić token po załadowaniu komponentu
@@ -22,9 +26,18 @@ function App() {
   }, []);
 
   const handleLogout = () => {
+    setShowModal(true);
+  };
+
+  const handleConfirmLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setIsLoggedIn(false); 
+    setIsLoggedIn(false);
+    setShowModal(false); 
+  };
+
+  const handleCancelLogout = () => {
+    setShowModal(false); 
   };
 
   if (loading) {
@@ -45,7 +58,7 @@ function App() {
             <>
               <Link to="/dashboard">Dashboard</Link> | 
               <Link to="/addmovie">Add Movie</Link> | 
-              <button onClick={handleLogout}>Logout</button>
+              <button className="logout-button" onClick={handleLogout}>Logout</button>
             </>
           ) : (
             <>
@@ -87,6 +100,15 @@ function App() {
         <Route path="/movies/:id" element={<MovieDetails />} />
         <Route path="/popularity" element={<PopularityRankPage />} />
       </Routes>
+
+      {showModal && (
+          <ConfirmationModal
+            message="Are you sure you want to logout?"
+            onConfirm={handleConfirmLogout}
+            onCancel={handleCancelLogout}
+          />
+        )}
+
     </div>
   </Router>
   );

@@ -5,6 +5,7 @@ import StarRating from './StarRating';
 import './MovieDetails.css';
 import './Shared.css';
 import { useNavigate } from 'react-router-dom';
+import ConfirmationModal from './ConfirmationModal';
 
 function MovieDetails() {
   const { id } = useParams();
@@ -16,6 +17,11 @@ function MovieDetails() {
   const [isWatched, setIsWatched] = useState(false); 
   const isLoggedIn = !!localStorage.getItem('token');
   const [isMovieCreator, setIsMovieCreator] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalAction, setModalAction] = useState(null);
+  const [targetItemId, setTargetItemId] = useState(null);
+  
   const navigate = useNavigate();
 
   const fetchMovieDetails = async () => {
@@ -47,19 +53,50 @@ function MovieDetails() {
     }
   };
 
-  const handleDeleteMovie = async () => {
-    const confirmed = window.confirm('Are you sure you want to delete this movie?');
-    if (!confirmed) return;
+  const handleDeleteMovie = () => {
+    setShowModal(true);
+    setModalAction('deleteMovie');
+  };
 
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3001/api/movies/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      navigate('/');
-    } catch (error) {
-      setError('Error deleting movie: ' + error.message);
+  const handleDeleteConfirmed = async () => {
+    if (modalAction === 'deleteMovie') {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:3001/api/movies/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        navigate('/');
+      } catch (error) {
+        setError('Error deleting movie: ' + error.message);
+      }
+    } else if (modalAction === 'deleteRating') {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:3001/api/movies/${id}/rate`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserRating(null); 
+        fetchMovieDetails();
+      } catch (error) {
+        setError('Error removing rating: ' + error.message);
+      }
+    } else if (modalAction === 'deleteComment') {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:3001/api/movies/${id}/comments/${targetItemId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchMovieDetails();
+      } catch (error) {
+        setError('Error deleting comment: ' + error.message);
+      }
     }
+
+    setShowModal(false); 
+  };
+
+  const handleCancelAction = () => {
+    setShowModal(false); 
   };
 
   const handleRating = async (value) => {
@@ -76,20 +113,9 @@ function MovieDetails() {
     }
   };
 
-  const handleRemoveRating = async () => {
-    const confirmed = window.confirm('Are you sure you want to delete your rating of this movie?');
-    if (!confirmed) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3001/api/movies/${id}/rate`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUserRating(null); 
-      fetchMovieDetails(); 
-    } catch (error) {
-      setError('Error removing rating: ' + error.message);
-    }
+  const handleRemoveRating = () => {
+    setShowModal(true);
+    setModalAction('deleteRating');
   };
 
   const handleAddComment = async () => {
@@ -106,19 +132,10 @@ function MovieDetails() {
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
-    const confirmed = window.confirm('Are you sure you want to delete this comment?');
-    if (!confirmed) return;
-  
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3001/api/movies/${id}/comments/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchMovieDetails(); 
-    } catch (error) {
-      setError('Error deleting comment: ' + error.message);
-    }
+  const handleDeleteComment = (commentId) => {
+    setTargetItemId(commentId);
+    setShowModal(true);
+    setModalAction('deleteComment');
   };
 
   const handleMarkAsWatched = async () => {
@@ -155,9 +172,20 @@ function MovieDetails() {
   return (
     <div className="movie-details-container">
       <div className="movie-header">
-        <h2>{movie.title}</h2>
+        <h1>{movie.title}</h1>
+        {movie.imageUrl ? (
+          <img 
+            className="movie-image"
+            src={`http://localhost:3001/${movie.imageUrl}`}
+            alt={movie.title}
+          />
+        ) : (
+          <div className="dashboard-movie-image-placeholder">
+            <span>No image available</span>
+          </div>
+        )}
+        <h3 className="average-rating">Average Rating: {averageRating}</h3>
         <div className="rating-section">
-          <p className="average-rating">Average Rating: {averageRating}</p>
           {isLoggedIn ? (
             <>
               <p>Your Rating:</p>
@@ -192,7 +220,7 @@ function MovieDetails() {
           </button>
         )}
 
-        {isMovieCreator && (
+        {isMovieCreator && isLoggedIn &&(
           <button onClick={handleDeleteMovie} className="delete-movie-btn">
             Delete Movie
           </button>
@@ -249,6 +277,21 @@ function MovieDetails() {
           )}
         </div>
       </div>
+
+      {showModal && (
+        <ConfirmationModal
+          message={
+            modalAction === 'deleteMovie'
+              ? "Are you sure you want to delete this movie?"
+              : modalAction === 'deleteRating'
+              ? "Are you sure you want to remove your rating?"
+              : "Are you sure you want to delete this comment?"
+          }
+          onConfirm={handleDeleteConfirmed}
+          onCancel={handleCancelAction}
+        />
+      )}
+
     </div>
   );
 }

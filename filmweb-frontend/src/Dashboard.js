@@ -208,10 +208,9 @@ function Dashboard() {
                       <img 
                         src={`http://localhost:3001/${movie.imageUrl}`}
                         alt={movie.title}
-                        className="dashboard-movie-image"
                       />
                     ) : (
-                      <div className="dashboard-movie-image-placeholder">
+                      <div>
                         <span>No image available</span>
                       </div>
                     )}

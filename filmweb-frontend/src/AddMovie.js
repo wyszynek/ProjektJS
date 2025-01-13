@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AddMovie.css';
 import './Shared.css';
+
 function AddMovie() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -21,6 +22,7 @@ function AddMovie() {
       setImagePreview(URL.createObjectURL(file));
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
