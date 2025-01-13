@@ -7,7 +7,7 @@ function AddMovie() {
   const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
-  const [director, setDirector] = useState('');  // Nowe pole dla reżysera
+  const [director, setDirector] = useState(''); 
   const [message, setMessage] = useState('');
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -99,7 +99,7 @@ function AddMovie() {
         />
         <input
           type="text"
-          placeholder="Director"  // Pole dla reżysera
+          placeholder="Director"  
           value={director}
           onChange={(e) => setDirector(e.target.value)}
           required

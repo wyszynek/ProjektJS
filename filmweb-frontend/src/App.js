@@ -10,7 +10,7 @@ import PopularityRankPage from './PopularityRankPage';
 import './App.css';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Stan logowania
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true); // Stan ładowania, żeby nie renderować komponentów przed sprawdzeniem logowania
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -79,7 +79,7 @@ function App() {
       </header>
 
       <Routes>
-        <Route path="/" element={<HomePage />} /> {/* Add HomePage route */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />

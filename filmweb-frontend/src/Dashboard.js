@@ -10,7 +10,6 @@ function Dashboard() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [addedMovies, setAddedMovies] = useState([]);
 
-  // Fetch rated movies
   useEffect(() => {
     const fetchRatedMovies = async () => {
       try {
@@ -27,7 +26,6 @@ function Dashboard() {
     fetchRatedMovies();
   }, []);
 
-  // Fetch watched movies
   useEffect(() => {
     const fetchWatchedMovies = async () => {
       try {
@@ -203,13 +201,13 @@ function Dashboard() {
         <div className="dashboard-movies-grid">
           {addedMovies.length > 0 ? (
             addedMovies.map(movie => (
-              <div key={movie.movieId || movie.id} className="dashboard-movie-card"> {/* Ensure proper key */}
-                <Link to={`/movies/${movie.movieId || movie.id}`} className="dashboard-movie-link"> {/* Pass the correct movieId */}
+              <div key={movie.movieId || movie.id} className="dashboard-movie-card">
+                <Link to={`/movies/${movie.movieId || movie.id}`} className="dashboard-movie-link">
                   <div className="dashboard-movie-image-container">
-                    {movie.Movie?.imageUrl ? (
+                  {movie.imageUrl ? (
                       <img 
-                        src={`http://localhost:3001/${movie.Movie.imageUrl}`} // Adjust this if needed
-                        alt={movie.Movie.title}
+                        src={`http://localhost:3001/${movie.imageUrl}`}
+                        alt={movie.title}
                         className="dashboard-movie-image"
                       />
                     ) : (
@@ -219,7 +217,7 @@ function Dashboard() {
                     )}
                   </div>
                   <div className="dashboard-movie-info">
-                    <h4>{movie.Movie?.title}</h4>
+                    <h4>{movie.title}</h4>
                   </div>
                 </Link>
               </div>

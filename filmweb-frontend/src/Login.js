@@ -27,9 +27,9 @@ function Login({ setIsLoggedIn }) {
       localStorage.setItem('user', JSON.stringify(response.data.user)); // Zapisujemy użytkownika
       
       setIsLoggedIn(true); 
-      navigate('/dashboard'); // Przejście na stronę użytkownika
+      navigate('/dashboard'); 
     } catch (error) {
-      setMessage(error.response?.data?.message || 'An error occurred'); // Obsługa błędu
+      setMessage(error.response?.data?.message || 'An error occurred'); 
     }
   };
 

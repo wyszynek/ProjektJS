@@ -18,20 +18,17 @@ function MovieDetails() {
   const [isMovieCreator, setIsMovieCreator] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch movie details
   const fetchMovieDetails = async () => {
     try {
       const response = await axios.get(`http://localhost:3001/api/movies/${id}`);
       setMovie(response.data);
 
-      // Get user rating from movie data instead of separate request
       if (isLoggedIn) {
         const userRating = response.data.ratings?.find(
           r => r.userId === JSON.parse(localStorage.getItem('user'))?.id
         )?.value;
         setUserRating(userRating || null);
 
-        // Check if the movie is marked as watched
         const token = localStorage.getItem('token');
         const watchedResponse = await axios.get(`http://localhost:3001/api/movies/${id}/watched`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -65,7 +62,6 @@ function MovieDetails() {
     }
   };
 
-  // Handle user rating
   const handleRating = async (value) => {
     try {
       const token = localStorage.getItem('token');
@@ -74,7 +70,7 @@ function MovieDetails() {
         { headers: { Authorization: `Bearer ${token}` }}
       );
       setUserRating(value);
-      fetchMovieDetails(); // Refresh to get updated average rating
+      fetchMovieDetails(); 
     } catch (error) {
       setError('Error rating movie: ' + error.message);
     }
@@ -89,14 +85,13 @@ function MovieDetails() {
       await axios.delete(`http://localhost:3001/api/movies/${id}/rate`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUserRating(null); // Resetowanie oceny użytkownika
-      fetchMovieDetails(); // Odświeżenie szczegółów filmu, aby zaktualizować średnią ocenę
+      setUserRating(null); 
+      fetchMovieDetails(); 
     } catch (error) {
       setError('Error removing rating: ' + error.message);
     }
   };
 
-  // Handle adding a comment
   const handleAddComment = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -120,13 +115,12 @@ function MovieDetails() {
       await axios.delete(`http://localhost:3001/api/movies/${id}/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchMovieDetails(); // Refresh the movie details to remove the deleted comment
+      fetchMovieDetails(); 
     } catch (error) {
       setError('Error deleting comment: ' + error.message);
     }
   };
 
-  // Mark or cancel the watched status
   const handleMarkAsWatched = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -236,7 +230,6 @@ function MovieDetails() {
                       <span className="user-name">{comment.User?.userName}</span>
                     </div>
 
-                    {/* Only show delete button if user is logged in and the comment belongs to the logged-in user */}
                     {isLoggedIn && isUserComment && (
                       <button onClick={() => handleDeleteComment(comment.id)} className="delete-comment-btn">
                         Delete

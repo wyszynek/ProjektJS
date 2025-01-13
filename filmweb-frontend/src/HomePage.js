@@ -11,7 +11,6 @@ function HomePage() {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortCriteria, setSortCriteria] = useState('title'); // Domyślnie sortowanie po tytule
-  const [newComments, setNewComments] = useState({});
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('token');
 
@@ -60,14 +59,14 @@ function HomePage() {
           return a.title.localeCompare(b.title);
         case 'genre':
           return a.genre.localeCompare(b.genre);
-        case 'popularity':
-          const avgRatingA = a.ratings?.length > 0
-            ? a.ratings.reduce((sum, r) => sum + r.value, 0) / a.ratings.length
-            : 0;
-          const avgRatingB = b.ratings?.length > 0
-            ? b.ratings.reduce((sum, r) => sum + r.value, 0) / b.ratings.length
-            : 0;
-          return avgRatingB - avgRatingA; // Sortowanie od najwyższej do najniższej popularności
+        // case 'popularity':
+        //   const avgRatingA = a.ratings?.length > 0
+        //     ? a.ratings.reduce((sum, r) => sum + r.value, 0) / a.ratings.length
+        //     : 0;
+        //   const avgRatingB = b.ratings?.length > 0
+        //     ? b.ratings.reduce((sum, r) => sum + r.value, 0) / b.ratings.length
+        //     : 0;
+        //   return avgRatingB - avgRatingA; 
         case 'releaseDate':
           return new Date(b.releaseDate) - new Date(a.releaseDate); // Sortowanie od najnowszej do najstarszej
         default:
