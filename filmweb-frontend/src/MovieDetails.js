@@ -80,6 +80,22 @@ function MovieDetails() {
     }
   };
 
+  const handleRemoveRating = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete your rating of this movie?');
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/api/movies/${id}/rate`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUserRating(null); // Resetowanie oceny użytkownika
+      fetchMovieDetails(); // Odświeżenie szczegółów filmu, aby zaktualizować średnią ocenę
+    } catch (error) {
+      setError('Error removing rating: ' + error.message);
+    }
+  };
+
   // Handle adding a comment
   const handleAddComment = async () => {
     try {
@@ -156,6 +172,11 @@ function MovieDetails() {
                 onRatingChange={handleRating}
                 userRating={userRating}
               />
+                    {userRating !== null && (
+        <button onClick={handleRemoveRating} className="remove-rating-btn">
+          Remove Rating
+        </button>
+      )}
             </>
           ) : (
             <p className="login-prompt">Login to rate this movie</p>

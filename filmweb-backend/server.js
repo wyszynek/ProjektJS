@@ -198,6 +198,25 @@ app.post('/api/movies/:id/rate', verifyToken, async (req, res) => {
   }
 });
 
+app.delete('/api/movies/:movieId/rate', verifyToken, async (req, res) => {
+  const { movieId } = req.params;
+  const userId = req.userId;
+
+  try {
+    const rating = await Rating.destroy({
+      where: { movieId, userId }
+    });
+
+    if (rating) {
+      res.status(200).json({ message: 'Rating removed successfully.' });
+    } else {
+      res.status(404).json({ error: 'Rating not found.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error removing rating.' });
+  }
+});
+
 app.get('/api/users/ratings', verifyToken, async (req, res) => {
   try {
     const ratings = await Rating.findAll({
