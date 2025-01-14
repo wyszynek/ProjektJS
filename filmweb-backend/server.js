@@ -58,9 +58,10 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    cb(null, `avatar-${req.userId}-${Date.now()}${path.extname(file.originalname)}`);
+    cb(null, `avatar-${Date.now()}${path.extname(file.originalname)}`);
   }
 });
+
 
 const upload = multer({
   storage,
@@ -69,13 +70,15 @@ const upload = multer({
     const allowedTypes = /jpeg|jpg|png/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
+
     if (extname && mimetype) {
-      cb(null, true);
+      return cb(null, true);
     } else {
-      cb(new Error('Only .jpg, .jpeg and .png files are allowed!'));
+      cb('Error: Images only!');
     }
   }
 });
+
 
 // dodawanie avatara
 app.post('/api/users/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
@@ -89,9 +92,9 @@ app.post('/api/users/avatar', verifyToken, upload.single('avatar'), async (req, 
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // jeśli użytkownik ma już avatar, usuń go
+    // Delete old avatar if exists
     if (user.avatarUrl) {
-      const oldPath = path.join(__dirname, user.avatarUrl);
+      const oldPath = path.join(process.cwd(), user.avatarUrl);
       if (fs.existsSync(oldPath)) {
         fs.unlinkSync(oldPath);
       }
@@ -100,11 +103,9 @@ app.post('/api/users/avatar', verifyToken, upload.single('avatar'), async (req, 
     const avatarUrl = `images/avatars/${req.file.filename}`;
     await user.update({ avatarUrl });
 
-    res.json({ 
-      message: 'Avatar uploaded successfully',
-      avatarUrl
-    });
+    res.json({ avatarUrl });
   } catch (error) {
+    console.error('Avatar upload error:', error);
     res.status(500).json({ message: 'Error uploading avatar' });
   }
 });

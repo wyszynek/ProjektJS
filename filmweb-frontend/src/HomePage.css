@@ -3,7 +3,9 @@
   max-width: 1200px;
   margin: 0 auto;
 }
-
+html{
+  overflow-y: scroll;
+} /* tutaj wazne zeby scroll nie uciekal */
 .home-search-bar {
   width: 100%;
   padding: 10px;

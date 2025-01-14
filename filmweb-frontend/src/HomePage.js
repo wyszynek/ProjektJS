@@ -17,7 +17,10 @@ function HomePage() {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/movies');
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/api/movies', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         setMovies(response.data);
         setLoading(false);
       } catch (error) {
@@ -25,10 +28,9 @@ function HomePage() {
         setLoading(false);
       }
     };
-
+  
     fetchMovies();
   }, []);
-
   const handleRating = async (movieId, value) => {
     try {
       const token = localStorage.getItem('token');
@@ -37,7 +39,10 @@ function HomePage() {
         { value },
         { headers: { Authorization: `Bearer ${token}` }}
       );
-      const response = await axios.get('http://localhost:3001/api/movies');
+      // Odśwież listę filmów
+      const response = await axios.get('http://localhost:3001/api/movies', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setMovies(response.data);
     } catch (error) {
       setError('Error rating movie: ' + error.message);
@@ -59,14 +64,6 @@ function HomePage() {
           return a.title.localeCompare(b.title);
         case 'genre':
           return a.genre.localeCompare(b.genre);
-        // case 'popularity':
-        //   const avgRatingA = a.ratings?.length > 0
-        //     ? a.ratings.reduce((sum, r) => sum + r.value, 0) / a.ratings.length
-        //     : 0;
-        //   const avgRatingB = b.ratings?.length > 0
-        //     ? b.ratings.reduce((sum, r) => sum + r.value, 0) / b.ratings.length
-        //     : 0;
-        //   return avgRatingB - avgRatingA; 
         case 'releaseDate':
           return new Date(b.releaseDate) - new Date(a.releaseDate); // Sortowanie od najnowszej do najstarszej
         default:
@@ -130,16 +127,19 @@ function HomePage() {
                 <h3>{movie.title}</h3>
                 <div className="home-rating-section">
                   <p className="home-average-rating">
-                    Average Rating: {movie.ratings?.length > 0
-                      ? (movie.ratings.reduce((sum, r) => sum + r.value, 0) / movie.ratings.length).toFixed(1)
+                    Average Rating: {movie.averageRating 
+                      ? movie.averageRating.toFixed(1)
                       : 'No ratings'}
                   </p>
                   {isLoggedIn && (
-                    <StarRating
-                      initialRating={movie.userRating || 0}
-                      onRatingChange={(value) => handleRating(movie.id, value)}
-                      userRating={movie.userRating}
-                    />
+                    <>
+                      <p>Your Rating:</p>
+                      <StarRating
+                        initialRating={movie.userRating || 0}
+                        onRatingChange={(value) => handleRating(movie.id, value)}
+                        userRating={movie.userRating}
+                      />
+                    </>
                   )}
                 </div>
                 <div onClick={() => handleMovieClick(movie.id)} className="home-movie-details">

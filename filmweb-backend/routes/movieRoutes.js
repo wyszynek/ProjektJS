@@ -11,19 +11,52 @@ const router = express.Router();
 //                      DANE FILMU
 
 // /api/movies
+// /api/movies
 router.get('/', async (req, res) => {
   try {
     const movies = await Movie.findAll({
       include: [
-        { model: Rating, as: 'ratings', attributes: ['value'] },
-        { model: User, attributes: ['userName'] },
+        { 
+          model: Rating, 
+          as: 'ratings', 
+          attributes: ['value', 'userId'] // dodajemy userId
+        },
+        { 
+          model: User, 
+          attributes: ['userName'] 
+        },
       ],
     });
 
+    // Sprawdzamy token i pobieramy userId jeśli istnieje
+    const token = req.headers['authorization']?.split(' ')[1];
+    let userId = null;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.id;
+      } catch (err) {
+        console.error('Token verification failed:', err);
+      }
+    }
+
     const moviesWithRatings = movies.map((movie) => {
+      const movieJson = movie.toJSON();
       const ratings = movie.ratings.map((r) => r.value);
-      const averageRating = ratings.length ? ratings.reduce((sum, val) => sum + val, 0) / ratings.length : null;
-      return { ...movie.toJSON(), averageRating };
+      const averageRating = ratings.length 
+        ? ratings.reduce((sum, val) => sum + val, 0) / ratings.length 
+        : null;
+      
+      // Znajdź ocenę użytkownika jeśli istnieje
+      const userRating = userId 
+        ? movie.ratings.find(r => r.userId === userId)?.value 
+        : null;
+
+      return {
+        ...movieJson,
+        averageRating,
+        userRating
+      };
     });
 
     res.json(moviesWithRatings);
@@ -32,7 +65,24 @@ router.get('/', async (req, res) => {
     res.status(500).send('Could not fetch movies');
   }
 });
+router.put('/:id', verifyToken, async (req, res) => {
+  try {
+    const movie = await Movie.findByPk(req.params.id);
+    
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
 
+    if (movie.userId !== req.userId) {
+      return res.status(403).json({ message: 'Not authorized to edit this movie' });
+    }
+
+    await movie.update(req.body);
+    res.json(movie);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating movie' });
+  }
+});
 // /api/movies/:id
 router.get('/:id', async (req, res) => {
   try {

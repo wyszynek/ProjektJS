@@ -17,6 +17,7 @@ function MovieDetails() {
   const [isWatched, setIsWatched] = useState(false); 
   const isLoggedIn = !!localStorage.getItem('token');
   const [isMovieCreator, setIsMovieCreator] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState(null);
@@ -156,7 +157,14 @@ function MovieDetails() {
       setError('Error marking movie as watched: ' + error.message);
     }
   };
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
 
+  const handleUpdateMovie = (updatedMovie) => {
+    setMovie(updatedMovie);
+    setIsEditing(false);
+  };
   useEffect(() => {
     fetchMovieDetails();
   }, [id, isLoggedIn]);

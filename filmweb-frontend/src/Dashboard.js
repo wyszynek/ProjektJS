@@ -7,8 +7,10 @@ import './Shared.css';
 function Dashboard() {
   const [ratedMovies, setRatedMovies] = useState([]);
   const [watchedMovies, setWatchedMovies] = useState([]); 
-  const [avatarFile, setAvatarFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [addedMovies, setAddedMovies] = useState([]);
+  const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
     const fetchRatedMovies = async () => {
@@ -57,16 +59,22 @@ function Dashboard() {
 
     fetchAddedMovies();
   }, []);
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+  const handleAvatarUpload = async () => {
+    if (!selectedFile) return;
+    setUploadError(null);
 
-  const handleAvatarUpload = async (e) => {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('avatar', selectedFile);
+
     try {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append('avatar', file);
-
-      const token = localStorage.getItem('token');
       const response = await axios.post(
         'http://localhost:3001/api/users/avatar',
         formData,
@@ -78,16 +86,20 @@ function Dashboard() {
         }
       );
 
-      // Update user in localStorage
       const user = JSON.parse(localStorage.getItem('user'));
       user.avatarUrl = response.data.avatarUrl;
       localStorage.setItem('user', JSON.stringify(user));
 
-      window.location.reload(); // Refresh to show new avatar
+      setImagePreview(null);
+      setSelectedFile(null);
+      setUploadError(null);
+      window.location.reload();
     } catch (error) {
       console.error('Error uploading avatar:', error);
+      setUploadError(error.response?.data?.message || 'Error uploading avatar');
     }
   };
+
 
   return (
     <div className="dashboard">
@@ -95,7 +107,13 @@ function Dashboard() {
         <h2>Your Profile</h2>
         <div className="dashboard-avatar-section">
           <div className="dashboard-avatar-container">
-            {JSON.parse(localStorage.getItem('user'))?.avatarUrl ? (
+            {imagePreview ? (
+              <img 
+                src={imagePreview}
+                alt="Preview"
+                className="dashboard-avatar-image"
+              />
+            ) : JSON.parse(localStorage.getItem('user'))?.avatarUrl ? (
               <img 
                 src={`http://localhost:3001/${JSON.parse(localStorage.getItem('user')).avatarUrl}`}
                 alt="User avatar"
@@ -108,17 +126,30 @@ function Dashboard() {
             )}
           </div>
           <div className="dashboard-avatar-upload">
-            <label htmlFor="avatar-input" className="dashboard-upload-button">
-              Change Avatar
-            </label>
-            <input
-              id="avatar-input"
-              type="file"
-              accept=".jpg,.jpeg,.png"
-              onChange={handleAvatarUpload}
-              style={{ display: 'none' }}
-            />
+        <label htmlFor="avatar-input" className="dashboard-upload-button">
+          Select Image
+        </label>
+        <input
+          id="avatar-input"
+          type="file"
+          accept=".jpg,.jpeg,.png"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
+        {selectedFile && (
+          <button 
+            onClick={handleAvatarUpload}
+            className="dashboard-upload-button"
+          >
+            Confirm Change
+          </button>
+        )}
+        {uploadError && (
+          <div className="upload-error">
+            {uploadError}
           </div>
+        )}
+      </div>
         </div>
       </div>
 
