@@ -5,7 +5,7 @@ import sequelize from './db.js'; //definiowanie modeli do bazy danych
 import dotenv from 'dotenv'; //ładowanie zmiennych z .env do tokena
 import jwt from 'jsonwebtoken'; //autoryzacja użytkowników
 import multer from 'multer'; //zapis przesłanych plików na serwerze (avatary i zdj filmów)
-import path from 'path'; 
+import path from 'path'; // manipulowanie ścieżkami w sposób niezależny od systemu operacyjnego
 import fs from 'fs'; //odczytywanie, zapisywanie, usuwanie plików i folderów (znajdywanie zdjęć)
 
 import authRoutes from './routes/authRoutes.js';
@@ -104,59 +104,6 @@ app.post('/api/users/avatar', verifyToken, upload.single('avatar'), async (req, 
   } catch (error) {
     console.error('Avatar upload error:', error);
     res.status(500).json({ message: 'Error uploading avatar' });
-  }
-});
-
-const movieStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = 'images/movies';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `movie-${Date.now()}${path.extname(file.originalname)}`);
-  }
-});
-
-const uploadMovie = multer({
-  storage: movieStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only .jpg, .jpeg and .png files are allowed!'));
-    }
-  }
-});
-
-app.post('/api/movies', uploadMovie.single('image'), verifyToken, async (req, res) => {
-  try {
-    const { title, director, description, genre, releaseDate } = req.body;
-    
-    if (!title || !description || !genre || !releaseDate || !director) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    const movie = await Movie.create({
-      title,
-      director,
-      description,
-      genre,
-      releaseDate,
-      userId: req.userId,
-      imageUrl: req.file ? `images/movies/${req.file.filename}` : null
-    });
-
-    res.status(201).json({ message: 'Movie added successfully', movie });
-  } catch (error) {
-    console.error('Error adding movie:', error);
-    res.status(500).json({ message: 'Error adding movie: ' + error.message });
   }
 });
 

@@ -16,7 +16,7 @@ function MovieDetails() {
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState(null);
   const [isWatched, setIsWatched] = useState(false);
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem('token'); //sprawdzenie, czy użytkownik jest zalogowany na stronie, bazując na istnieniu tokena w lokalnej pamięci przeglądarki (jeżeli token zostanie wysłany to !! daje true)
   const [isMovieCreator, setIsMovieCreator] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 

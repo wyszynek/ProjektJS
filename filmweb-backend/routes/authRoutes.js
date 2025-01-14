@@ -1,5 +1,5 @@
 import express from 'express';
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize, Op } from 'sequelize'; // Op użyte tworzenia zapytań do bazy danych w sposób deklaratywny (co chcemy osiągnąc a nie jak to zrobić krok po kroku)
 import { User, Movie, Comment, Rating, WatchedMovie } from '../models.js';  
 import bcrypt from 'bcrypt'; 
 import jwt from 'jsonwebtoken'; 
@@ -39,7 +39,7 @@ router.post('/login', async (req, res) => {
   try {
     const user = await User.findOne({ 
       where: { 
-        [Op.or]: [
+        [Op.or]: [ // jest to operator logiczny, który oznacza, że chcemy znaleźć użytkownika, który spełnia przynajmniej jeden z warunków
           { email: identifier }, 
           { userName: identifier }
         ] 

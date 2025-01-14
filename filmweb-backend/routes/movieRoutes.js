@@ -1,16 +1,16 @@
 import express from 'express';
-import cors from 'cors';
 import { Sequelize, Op } from 'sequelize';
 import { User, Movie, Comment, Rating, WatchedMovie } from '../models.js'; 
-import sequelize from '../db.js';  
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'; 
 import verifyToken from '../middleware/verifyToken.js';
+import multer from 'multer'; //zapis przesłanych plików na serwerze (avatary i zdj filmów)
+import path from 'path'; 
+import fs from 'fs'; //odczytywanie, zapisywanie, usuwanie plików i folderów (znajdywanie zdjęć)
+
 const router = express.Router();
 
 //                      DANE FILMU
 
-// /api/movies
 // /api/movies
 router.get('/', async (req, res) => {
   try {
@@ -146,6 +146,59 @@ router.delete('/:id', verifyToken, async (req, res) => {
   }
 });
 
+const movieStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = 'images/movies';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `movie-${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
+
+const uploadMovie = multer({
+  storage: movieStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .jpg, .jpeg and .png files are allowed!'));
+    }
+  }
+});
+
+router.post('/', uploadMovie.single('image'), verifyToken, async (req, res) => {
+  try {
+    const { title, director, description, genre, releaseDate } = req.body;
+    
+    if (!title || !description || !genre || !releaseDate || !director) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const movie = await Movie.create({
+      title,
+      director,
+      description,
+      genre,
+      releaseDate,
+      userId: req.userId,
+      imageUrl: req.file ? `images/movies/${req.file.filename}` : null
+    });
+
+    res.status(201).json({ message: 'Movie added successfully', movie });
+  } catch (error) {
+    console.error('Error adding movie:', error);
+    res.status(500).json({ message: 'Error adding movie: ' + error.message });
+  }
+});
+
 
 
 
@@ -221,7 +274,7 @@ router.get('/:id/comments', async (req, res) => {
       include: [
         { model: User, attributes: ['id', 'userName'] } 
       ],
-      order: [['createdAt', 'DESC']],
+      order: [['createdAt', 'DESC']], // posortowanie wynikow po createdAt w porządku malejącym (DESC)
     });
 
     res.json(comments);
@@ -272,7 +325,7 @@ router.delete('/:movieId/comments/:commentId', verifyToken, async (req, res) => 
       return res.status(404).json({ message: 'Comment not found or you are not authorized to delete this comment' });
     }
 
-    await comment.destroy(); // Delete the comment
+    await comment.destroy(); 
     res.status(200).json({ message: 'Comment deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting comment: ' + error.message });

@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react'; //zarządzanie lokalnym stanem komponentu 
+import axios from 'axios'; //łatwe komunikowanie się z backendem w celu przesyłania lub odbierania danych (to klient HTTP obsługujący żądania AJAX, upraszcza go)
+// automatycznie parsuje odpowiedzi w formacie JSON
+// od razu wyrzuca błąd
+// ułatwia dodawanie niestandardowych nagłówków (np. tokenów autoryzacyjnych)
+import { useNavigate } from 'react-router-dom'; //nawigowanie między różnymi stronami bez przeładowywania całej aplikacji
 import './style/Shared.css';
 
 function Login({ setIsLoggedIn }) {
@@ -12,7 +15,7 @@ function Login({ setIsLoggedIn }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', {
+      const response = await axios.post('http://localhost:3001/api/auth/login', { //axios nawiązuje połączenie z serwerem, przekazuje treść danych zapytania i czeka na odp
         identifier,
         password,
       });
