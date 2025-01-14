@@ -6,6 +6,7 @@ import './MovieDetails.css';
 import './Shared.css';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from './ConfirmationModal';
+import EditMovie from './EditMovie';
 
 function MovieDetails() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ function MovieDetails() {
   const [userRating, setUserRating] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState(null);
-  const [isWatched, setIsWatched] = useState(false); 
+  const [isWatched, setIsWatched] = useState(false);
   const isLoggedIn = !!localStorage.getItem('token');
   const [isMovieCreator, setIsMovieCreator] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -22,7 +23,7 @@ function MovieDetails() {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState(null);
   const [targetItemId, setTargetItemId] = useState(null);
-  
+
   const navigate = useNavigate();
 
   const fetchMovieDetails = async () => {
@@ -76,7 +77,7 @@ function MovieDetails() {
         await axios.delete(`http://localhost:3001/api/movies/${id}/rate`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setUserRating(null); 
+        setUserRating(null);
         fetchMovieDetails();
       } catch (error) {
         setError('Error removing rating: ' + error.message);
@@ -93,22 +94,22 @@ function MovieDetails() {
       }
     }
 
-    setShowModal(false); 
+    setShowModal(false);
   };
 
   const handleCancelAction = () => {
-    setShowModal(false); 
+    setShowModal(false);
   };
 
   const handleRating = async (value) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:3001/api/movies/${id}/rate`, 
-        { value }, 
-        { headers: { Authorization: `Bearer ${token}` }}
+      await axios.post(`http://localhost:3001/api/movies/${id}/rate`,
+        { value },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setUserRating(value);
-      fetchMovieDetails(); 
+      fetchMovieDetails();
     } catch (error) {
       setError('Error rating movie: ' + error.message);
     }
@@ -124,7 +125,7 @@ function MovieDetails() {
       const token = localStorage.getItem('token');
       await axios.post(`http://localhost:3001/api/movies/${id}/comments`,
         { content: newComment },
-        { headers: { Authorization: `Bearer ${token}` }}
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setNewComment('');
       fetchMovieDetails();
@@ -161,9 +162,10 @@ function MovieDetails() {
     setIsEditing(true);
   };
 
-  const handleUpdateMovie = (updatedMovie) => {
+  const handleUpdateMovie = async (updatedMovie) => {
     setMovie(updatedMovie);
     setIsEditing(false);
+    await fetchMovieDetails(); // This will refresh all movie data including comments
   };
   useEffect(() => {
     fetchMovieDetails();
@@ -182,7 +184,7 @@ function MovieDetails() {
       <div className="movie-header">
         <h1>{movie.title}</h1>
         {movie.imageUrl ? (
-          <img 
+          <img
             className="movie-image"
             src={`http://localhost:3001/${movie.imageUrl}`}
             alt={movie.title}
@@ -202,11 +204,11 @@ function MovieDetails() {
                 onRatingChange={handleRating}
                 userRating={userRating}
               />
-                    {userRating !== null && (
-        <button onClick={handleRemoveRating} className="remove-rating-btn">
-          Remove Rating
-        </button>
-      )}
+              {userRating !== null && (
+                <button onClick={handleRemoveRating} className="remove-rating-btn">
+                  Remove Rating
+                </button>
+              )}
             </>
           ) : (
             <p className="login-prompt">Login to rate this movie</p>
@@ -222,15 +224,19 @@ function MovieDetails() {
       </div>
 
       <div className="movie-actions">
+        {isMovieCreator && isLoggedIn && (
+          <>
+            <button onClick={() => setIsEditing(true)} className="edit-movie-btn">
+              Edit Movie
+            </button>
+            <button onClick={handleDeleteMovie} className="delete-movie-btn">
+              Delete Movie
+            </button>
+          </>
+        )}
         {isLoggedIn && (
           <button onClick={handleMarkAsWatched} className="mark-watched-btn">
             {isWatched ? 'Cancel Watched' : 'Mark as Watched'}
-          </button>
-        )}
-
-        {isMovieCreator && isLoggedIn &&(
-          <button onClick={handleDeleteMovie} className="delete-movie-btn">
-            Delete Movie
           </button>
         )}
       </div>
@@ -285,15 +291,21 @@ function MovieDetails() {
           )}
         </div>
       </div>
-
+      {isEditing && (
+  <EditMovie 
+    movie={movie}
+    onClose={() => setIsEditing(false)}
+    onUpdate={handleUpdateMovie}
+  />
+      )}
       {showModal && (
         <ConfirmationModal
           message={
             modalAction === 'deleteMovie'
               ? "Are you sure you want to delete this movie?"
               : modalAction === 'deleteRating'
-              ? "Are you sure you want to remove your rating?"
-              : "Are you sure you want to delete this comment?"
+                ? "Are you sure you want to remove your rating?"
+                : "Are you sure you want to delete this comment?"
           }
           onConfirm={handleDeleteConfirmed}
           onCancel={handleCancelAction}

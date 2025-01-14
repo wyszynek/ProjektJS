@@ -245,7 +245,28 @@
 .delete-movie-btn:focus {
   outline: none;
 }
+.edit-movie-btn {
+  background-color: #1878d3;
+  color: white;
+  border: none;
+  padding: 8px 16px;  
+  font-size: 14px;     
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  width: auto;        
+  max-width: 180px;   
+  margin-top: 20px;
+}
 
+.edit-movie-btn:hover {
+  background-color: #172df7;
+  transform: translateY(-2px);
+}
+
+.e-movie-btn:focus {
+  outline: none;
+}
 
 .movie-header {
   text-align: center; 

@@ -21,8 +21,7 @@ function EditMovie({ movie, onClose, onUpdate }) {
         { title, description, genre, releaseDate, director },
         { headers: { Authorization: `Bearer ${token}` }}
       );
-      onUpdate(response.data);
-      onClose();
+      await onUpdate(response.data);
     } catch (error) {
       setError(error.response?.data?.message || 'Error updating movie');
     }
