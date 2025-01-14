@@ -1,8 +1,8 @@
-// Register.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Shared.css';
+
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,25 +25,75 @@ function Register() {
         birthDate,
       });
       setMessage(response.data.message);
-      navigate('/login'); 
+      navigate('/login');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Błąd podczas rejestracji');
+      setMessage(error.response?.data?.message || 'An error occurred during registration');
     }
   };
 
   return (
-    <div>
-      <h2>Rejestracja</h2>
-      <form onSubmit={handleRegister}>
-        <input type="text" placeholder="User Name" value={userName} onChange={(e) => setUserName(e.target.value)} required />
-        <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-        <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-        <input type="date" placeholder="Birth Date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Rejestracja</button>
-      </form>
-      <p>{message}</p>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">Create Your Account</h2>
+        <p className="auth-subtitle">Join us and explore more</p>
+        <form className="auth-form" onSubmit={handleRegister}>
+          <input
+            className="auth-input"
+            type="text"
+            placeholder="User Name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            required
+          />
+          <input
+            className="auth-input"
+            type="text"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+          />
+          <input
+            className="auth-input"
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+          <input
+            className="auth-input"
+            type="date"
+            placeholder="Birth Date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            required
+          />
+          <input
+            className="auth-input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button className="auth-button" type="submit">
+            Register
+          </button>
+        </form>
+        {message && <p className="auth-message">{message}</p>}
+        <div className="auth-footer">
+          <p>Already have an account? <a href="/login">Log in</a></p>
+        </div>
+      </div>
     </div>
   );
 }
