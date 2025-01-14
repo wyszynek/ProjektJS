@@ -15,11 +15,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const movies = await Movie.findAll({
-      include: [
+      include: [ // join z innymi tabelami (pozwala na dołączenie do wyników zapytania informacji o powiązanym obiekcie)
         { 
           model: Rating, 
           as: 'ratings', 
-          attributes: ['value', 'userId'] 
+          attributes: ['value', 'userId']  //określenie porządku, w jakim wyniki zapytania mają zostać posortowane
         },
         { 
           model: User, 
@@ -65,6 +65,7 @@ router.get('/', async (req, res) => {
     res.status(500).send('Could not fetch movies');
   }
 });
+
 router.put('/:id', verifyToken, async (req, res) => {
   try {
     const movie = await Movie.findByPk(req.params.id);
@@ -136,7 +137,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
       return res.status(403).json({ message: 'You are not authorized to delete this movie' });
     }
 
-    // Delete the movie
     await movie.destroy();
     
     res.status(200).json({ message: 'Movie deleted successfully' });

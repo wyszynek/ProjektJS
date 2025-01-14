@@ -1,9 +1,7 @@
 import express from 'express';
-import cors from 'cors';
 import { Sequelize, Op } from 'sequelize';
-import { User, Movie, Comment, Rating, WatchedMovie } from '../models.js'; 
-import sequelize from '../db.js';  
-import bcrypt from 'bcrypt';
+import { User, Movie, Comment, Rating, WatchedMovie } from '../models.js';  
+import bcrypt from 'bcrypt'; 
 import jwt from 'jsonwebtoken'; 
 const router = express.Router();
 
@@ -58,9 +56,10 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid password' });
     }
 
+    // generowanie tokena
     const token = jwt.sign(
-      { id: user.id, userName: user.userName, email: user.email },
-      process.env.JWT_SECRET,
+      { id: user.id, userName: user.userName, email: user.email }, // dane, które będą przechowywane w tokenie
+      process.env.JWT_SECRET, // secret jest używane do podpisania tokenu, co zapewnia jego integralność i umożliwia późniejsze weryfikowanie, że token nie został zmieniony
       { expiresIn: '1h' }
     );
 

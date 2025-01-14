@@ -1,14 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import { Sequelize, Op } from 'sequelize';
+import express from 'express'; //do zarządzania żądaniami/odp HTTP
+import cors from 'cors'; //umożliwia dzielenie się zasobami między różnymi domenami
 import { User, Movie, Comment, Rating, WatchedMovie } from './models.js'; 
-import sequelize from './db.js';  
-import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken'; 
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import sequelize from './db.js'; //definiowanie modeli do bazy danych
+import dotenv from 'dotenv'; //ładowanie zmiennych z .env do tokena
+import jwt from 'jsonwebtoken'; //autoryzacja użytkowników
+import multer from 'multer'; //zapis przesłanych plików na serwerze (avatary i zdj filmów)
+import path from 'path'; 
+import fs from 'fs'; //odczytywanie, zapisywanie, usuwanie plików i folderów (znajdywanie zdjęć)
 
 import authRoutes from './routes/authRoutes.js';
 import movieRoutes from './routes/movieRoutes.js';
@@ -17,7 +15,7 @@ import usersRoutes from './routes/usersRoutes.js';
 dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = 3001; 
 app.use(express.json());
 app.use(
   cors({
@@ -32,7 +30,6 @@ app.use('/api/movies', movieRoutes);
 
 app.use('/api/users', usersRoutes);
 
-// Middleware do weryfikacji tokena
 const verifyToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
 
