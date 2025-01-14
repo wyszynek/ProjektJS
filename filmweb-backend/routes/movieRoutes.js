@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
         { 
           model: Rating, 
           as: 'ratings', 
-          attributes: ['value', 'userId'] // dodajemy userId
+          attributes: ['value', 'userId'] 
         },
         { 
           model: User, 
@@ -83,6 +83,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Error updating movie' });
   }
 });
+
 // /api/movies/:id
 router.get('/:id', async (req, res) => {
   try {

@@ -109,7 +109,7 @@ function HomePage() {
       <div className="home-movies-grid">
         {filteredMovies.length > 0 ? (
           filteredMovies.map((movie) => (
-            <div key={movie.id} className="home-movie-card">
+            <div key={movie.id} className="home-movie-card" onClick={() => handleMovieClick(movie.id)}>
               <div className="home-movie-image-container">
                 {movie.imageUrl ? (
                   <img 
@@ -142,7 +142,7 @@ function HomePage() {
                     </>
                   )}
                 </div>
-                <div onClick={() => handleMovieClick(movie.id)} className="home-movie-details">
+                <div className="home-movie-details">
                   <p><strong>Director:</strong> {movie.director}</p>
                   <p><strong>Genre:</strong> {movie.genre}</p>
                   <p><strong>Release Date:</strong> {new Date(movie.releaseDate).toLocaleDateString()}</p>
