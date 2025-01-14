@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import StarRating from './StarRating';
-import './HomePage.css';
-import './Shared.css';
+import './style/HomePage.css';
+import './style/Shared.css';
 
 function HomePage() {
   const [movies, setMovies] = useState([]);

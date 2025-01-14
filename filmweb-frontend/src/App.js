@@ -8,7 +8,7 @@ import HomePage from './HomePage';
 import MovieDetails from './MovieDetails';
 import PopularityRankPage from './PopularityRankPage';
 import ConfirmationModal from './ConfirmationModal';
-import './App.css';
+import './style/App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

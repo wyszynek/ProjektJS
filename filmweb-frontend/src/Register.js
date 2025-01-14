@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Shared.css';
+import './style/Shared.css';
 
 function Register() {
   const [email, setEmail] = useState('');

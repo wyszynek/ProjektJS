@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './Dashboard.css';
-import './Shared.css';
+import './style/Dashboard.css';
+import './style/Shared.css';
 
 function Dashboard() {
   const [ratedMovies, setRatedMovies] = useState([]);

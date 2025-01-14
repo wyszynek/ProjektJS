@@ -57,7 +57,7 @@ html{
 }
 
 .home-movie-info {
-  padding: 15px;
+  padding: 25px;
 }
 
 .home-rating-section {
@@ -66,4 +66,12 @@ html{
 
 .home-movie-details {
   cursor: pointer;
+}
+
+.home-sort-dropdown{
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: 20px;
 }

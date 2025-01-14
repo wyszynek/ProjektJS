@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './EditMovie.css';
+import './style/EditMovie.css';
 
 function EditMovie({ movie, onClose, onUpdate }) {
   const [title, setTitle] = useState(movie.title);

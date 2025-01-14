@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './StarRating.css';
-import './Shared.css';
+import './style/StarRating.css';
+import './style/Shared.css';
 function StarRating({ initialRating = 0, onRatingChange, userRating = null }) {
   const [hover, setHover] = useState(null);
   const [rating, setRating] = useState(initialRating);

@@ -2,7 +2,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    /* font-family: Arial, sans-serif; */
+    font-family: 'Poppins', sans-serif;
 }
 
 .auth-container {
@@ -53,12 +54,12 @@
   }
   
   .auth-input:focus {
-    border-color: #6a11cb;
+    border-color: #852fe0;
     box-shadow: 0 0 5px rgba(106, 17, 203, 0.5);
   }
   
   .auth-button {
-    background-color: #6a11cb;
+    background-color: #852fe0;
     color: #ffffff;
     border: none;
     padding: 12px;
@@ -86,7 +87,7 @@
   }
   
   .auth-footer a {
-    color: #6a11cb;
+    color: #852fe0;
     text-decoration: none;
     font-weight: bold;
   }
@@ -130,4 +131,3 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-top: 10px;
   }
-  

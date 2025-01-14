@@ -1,6 +1,5 @@
-// ConfirmationModal.js
 import React from 'react';
-import './ConfirmationModal.css'; // Import custom CSS for modal styling
+import './style/ConfirmationModal.css';
 
 const ConfirmationModal = ({ message, onConfirm, onCancel }) => {
   return (
