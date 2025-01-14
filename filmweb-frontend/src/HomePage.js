@@ -109,8 +109,8 @@ function HomePage() {
       <div className="home-movies-grid">
         {filteredMovies.length > 0 ? (
           filteredMovies.map((movie) => (
-            <div key={movie.id} className="home-movie-card" onClick={() => handleMovieClick(movie.id)}>
-              <div className="home-movie-image-container">
+            <div key={movie.id} className="home-movie-card">
+              <div className="home-movie-image-container" onClick={() => handleMovieClick(movie.id)}>
                 {movie.imageUrl ? (
                   <img 
                     src={`http://localhost:3001/${movie.imageUrl}`}
