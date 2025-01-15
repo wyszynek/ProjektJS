@@ -13,7 +13,7 @@ function HomePage() {
   const [sortCriteria, setSortCriteria] = useState('title'); // Domyślnie sortowanie po tytule
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('token');
-
+// Pobieranie filmów
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -31,6 +31,7 @@ function HomePage() {
   
     fetchMovies();
   }, []);
+// Obsługa oceniania filmów
   const handleRating = async (movieId, value) => {
     try {
       const token = localStorage.getItem('token');
@@ -43,12 +44,12 @@ function HomePage() {
       const response = await axios.get('http://localhost:3001/api/movies', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      // Ustawienie nowej listy filmów
       setMovies(response.data);
     } catch (error) {
       setError('Error rating movie: ' + error.message);
     }
   };
-
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };

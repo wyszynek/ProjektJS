@@ -11,19 +11,20 @@ function Login({ setIsLoggedIn }) {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
+ // Funkcja obsługująca proces logowania
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault();  // Zapobiega przeładowaniu strony po wysłaniu formularza
     try {
       const response = await axios.post('http://localhost:3001/api/auth/login', { //axios nawiązuje połączenie z serwerem, przekazuje treść danych zapytania i czeka na odp
-        identifier,
+        identifier, // Login użytkownika (email lub nazwa użytkownika)
         password,
       });
 
       setMessage(response.data.message);
+      // Zapisanie tokena JWT i danych użytkownika w localStorage
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-
+      // Zaktualizowanie stanu logowania w aplikacji nadrzędnej
       setIsLoggedIn(true);
       navigate('/dashboard');
     } catch (error) {

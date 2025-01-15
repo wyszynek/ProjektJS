@@ -13,11 +13,11 @@ function AddMovie() {
   const [imagePreview, setImagePreview] = useState(null);
 
   const genres = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi', 'Thriller', 'Documentary'];
-
+// Obsługa wyboru obrazu
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]; // Pobranie pierwszego pliku z listy
     if (file) {
-      setImage(file);
+      setImage(file); // Ustawienie pliku w stanie komponentu
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -36,6 +36,7 @@ function AddMovie() {
       return;
     }
 
+    // Tworzenie obiektu FormData do przesłania danych formularza i obrazu
     try {
       const formData = new FormData();
       formData.append('title', title);
@@ -53,7 +54,7 @@ function AddMovie() {
         { 
           headers: { 
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data' // Ustawienie nagłówka dla danych typu FormData
           } 
         }
       );

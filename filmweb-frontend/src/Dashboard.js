@@ -12,6 +12,7 @@ function Dashboard() {
   const [addedMovies, setAddedMovies] = useState([]);
   const [uploadError, setUploadError] = useState(null);
 
+// Pobieranie ocenionych filmów
   useEffect(() => {
     const fetchRatedMovies = async () => {
       try {
@@ -27,7 +28,7 @@ function Dashboard() {
 
     fetchRatedMovies();
   }, []);
-
+// Pobieranie obejrzanych filmów
   useEffect(() => {
     const fetchWatchedMovies = async () => {
       try {
@@ -43,7 +44,7 @@ function Dashboard() {
 
     fetchWatchedMovies();
   }, []);
-
+// Pobieranie dodanych filmów
   useEffect(() => {
     const fetchAddedMovies = async () => {
       try {
@@ -66,6 +67,8 @@ function Dashboard() {
       setImagePreview(URL.createObjectURL(file));
     }
   };
+
+  // Obsługa przesyłania obrazu
   const handleAvatarUpload = async () => {
     if (!selectedFile) return;
     setUploadError(null);

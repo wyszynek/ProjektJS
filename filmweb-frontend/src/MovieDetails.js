@@ -20,16 +20,16 @@ function MovieDetails() {
   const [isMovieCreator, setIsMovieCreator] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalAction, setModalAction] = useState(null);
-  const [targetItemId, setTargetItemId] = useState(null);
+ const [showModal, setShowModal] = useState(false); 
+ const [modalAction, setModalAction] = useState(null); // Akcja wywoływana po potwierdzeniu
+ const [targetItemId, setTargetItemId] = useState(null);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate();// Hook do nawigacji między stronami
 
   const fetchMovieDetails = async () => {
     try {
       const response = await axios.get(`http://localhost:3001/api/movies/${id}`);
-      setMovie(response.data);
+      setMovie(response.data); // Ustawienie danych w stanie
 
       if (isLoggedIn) {
         const userRating = response.data.ratings?.find(
@@ -144,11 +144,13 @@ function MovieDetails() {
     try {
       const token = localStorage.getItem('token');
       if (isWatched) {
+        // Jeśli film jest już oznaczony, to usuwa oznaczenie
         await axios.delete(`http://localhost:3001/api/movies/${id}/watched`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setIsWatched(false);
       } else {
+        // Jeśli film nie jest oznaczony, dodaj oznaczenie
         await axios.post(`http://localhost:3001/api/movies/${id}/watched`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -158,9 +160,9 @@ function MovieDetails() {
       setError('Error marking movie as watched: ' + error.message);
     }
   };
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  // const handleEditClick = () => {
+  //   setIsEditing(true);
+  // };
 
   const handleUpdateMovie = async (updatedMovie) => {
     setMovie(updatedMovie);
@@ -174,7 +176,7 @@ function MovieDetails() {
   if (loading) return <p>Loading movie details...</p>;
   if (error) return <p className="error-message">{error}</p>;
   if (!movie) return <p>Movie not found.</p>;
-
+ // obliczanie średniej oceny filmu
   const averageRating = movie.ratings?.length > 0
     ? (movie.ratings.reduce((sum, rating) => sum + rating.value, 0) / movie.ratings.length).toFixed(1)
     : 'No ratings yet';
